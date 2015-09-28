@@ -16,9 +16,15 @@ local function newPool()
     return pool
 end
 
-local function printClass() 
-    print("Pool & ")
-    --SpeciesHandler.printClass()
+local function printClass(pool) 
+    print("")
+    print("--- POOL ---- ")
+    print("number of species: " .. #pool.species)
+    print("current generation: " .. pool.generation)
+    print("current species: " .. pool.currentSpecies)
+    print("current genome: " .. pool.currentGenome)
+    print("max fitness: " .. pool.maxFitness)
+    print("innovation: " .. pool.innovation)
 end
 
 PoolHandler.newPool = newPool

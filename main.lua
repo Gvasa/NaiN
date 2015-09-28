@@ -10,9 +10,7 @@ NetworkHandler = require("NetworkHandler")
 ConstantValues = require("ConstantValues")
 ---------------------------------------
 
-local genome = GenomeHandler.newGenome()
-
-
-table.insert(genome.links, LinkHandler.newLink())
-
-GenomeHandler.printClass(genome)
+local pool = PoolHandler.newPool()
+pool.species = SpeciesHandler.newSpecies()
+PoolHandler.printClass(pool)
+SpeciesHandler.printClass(pool.species)

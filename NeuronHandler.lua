@@ -4,14 +4,14 @@ local NeuronHandler = {}
 
 local function newNeuron()
     local neuron = {}
-    neuron.incommingGenes = {}      -- alla inkommande länkar från andra noder -- 
+    neuron.incommingLinks = {}      -- alla inkommande länkar från andra noder -- 
     neuron.value = 0                -- värdet på denna nod --
 end
 
 local function printClass(neuron)
-    if(neuron.value ~= nil) then
-        print("Neuron - Value: " ..  neuron.value)
-    end
+    print("            ---- Neuron ----")
+    print("            Number of incomming links: " ..  #neuron.incommingLinks)
+    print("            Value of neuron: " .. neuron.value)
 end
 
 -- binda functioner --

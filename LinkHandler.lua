@@ -16,9 +16,12 @@ local function newLink()
 end
 
 local function printClass(link) 
-    if link.into ~= nil then
-        print("into: " .. link.into .. " out: " .. link.out)
-    end
+    print("            ---- Link ----")
+    print("            Into: " .. link.into)
+    print("            Out: " .. link.out)
+    print("            Weight: " .. link.weight)
+    print("            Innovation number: " .. link.innovation)
+    print("            Enabled: " .. link.enalbed)
 end
 
 -- binda functioner

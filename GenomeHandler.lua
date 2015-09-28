@@ -7,8 +7,7 @@ local function newGenome()
     local genome = {}
     
     genome.links = {}           -- alla länkar mellan neuronerna
-    genome.fitness = 0          -- värde på hur bra genomen är
-    genome.adjustedFitness = 0  -- värde efter 
+    genome.fitness = 0          -- värde på hur bra genomen är 
     genome.network = {}         -- nätverkHanterare för alla kopplingar mellan neuroner
     genome.maxNeuron = 0        -- max antal neuroner
     genome.globalRank = 0       -- en global rank över alla genomer för en generation
@@ -17,7 +16,12 @@ local function newGenome()
 end
 
 local function printClass(genome) 
-    print("Number of Genes: " .. #genome)
+    print("        ---- Genome ---- ")
+    print("        Number of links: " .. #genome.links)
+    print("        Fitness: " .. genome.fitness)
+    print("        Global Rank: " .. #genome.globalRank)
+    print("        Max neurons: " .. #genome.neuron)
+    print("        Network: " .. "exists")
 end
 
 
