@@ -7,9 +7,11 @@ GenomeHandler = require("GenomeHandler")
 LinkHandler = require("LinkHandler")
 NeuronHandler = require("NeuronHandler")
 NetworkHandler = require("NetworkHandler")
+ConstantValues = require("ConstantValues")
 ---------------------------------------
 
 local genome = GenomeHandler.newGenome()
+
 
 table.insert(genome.links, LinkHandler.newLink())
 
