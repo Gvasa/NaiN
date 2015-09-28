@@ -11,6 +11,13 @@ local function newGenome()
     genome.network = {}         -- nätverkHanterare för alla kopplingar mellan neuroner
     genome.maxNeuron = 0        -- max antal neuroner
     genome.globalRank = 0       -- en global rank över alla genomer för en generation
+    genome.mutationRates = {}
+    genome.mutationRates["mutateConnectionChance"]  = MUTATE_CONNECTIONS_CHANCE           -- sannolikhet för att vi skall försöka ändra vikten på en länk --
+    genome.mutationRates["linkMutationChance"]      = LINK_MUTATION_CHANCE                -- sannolikhet för att en ny länk skall skapas mellan två noder -- 
+    genome.mutationRates["biasMutationChance"]      = BIAS_MUTATION_CHANCE                -- sannolikhet för att en länk skall skapas mellan den sista input-noden och en random-nod -- 
+    genome.mutationRates["nodeMutationChnace"]      = NODE_MUTATION_CHANCE                -- sannolikhet för att en länk skall bli två med olika vikter --
+    genome.mutationRates["disableMutationChance"]   = DISBALE_MUTATION_CHANCE             -- sannolikhet för att en länk skall blir inaktiv som är aktiv just nu och inte användas i simulationen --
+    genome.mutationRates["enableMutationChance"]    = ENABLE_MUTATION_CHANCE 
 
     return genome
 end
@@ -22,11 +29,91 @@ local function basicGenome()
 
     genome.maxNeuron = NUM_OF_INPUTS
 
-    mutateGenome(genome) -- Muterar vår genome; ändrar länkar, vikter, om den är aktiv ..
-
-    return genome
+    return GanomeHandler.mutateGenome(genome) -- Muterar vår genome; ändrar länkar, vikter, om den är aktiv ..
 
 end
+
+local function mutateGenome(genome)
+    -- Ändrar alla mutateRates med +/- 5%
+    for mutation, rate in pair(genome.mutationRates) do 
+        if math.random() > 0.5 then
+            genome.mutationRates[mutation] =  1.05 * rate; 
+        else 
+            genome.mutationRates[mutation] =  0.95 * rate; 
+        end
+    end
+
+    -- Connection   -> pointMutate
+    if math.random() < genome.mutationRates["mutateConnectionChance"] then
+        GenomeHandler.linkWeightMutate(genome)
+    end
+
+    -- Link         -> LinkMutate(genome, false)
+    local linkRate = genome.mutationRates["linkMutationChance"]
+    while linkRate > 1 do
+        if math.random() < linkRate then
+            GenomeHandler.LinkMutate(genome, false)
+        end
+        linkRate = linkRate - 1
+    end 
+
+    -- bias         -> LinkMutate(genome, true)
+
+    local biasRate = genome.mutationRates["biasMutationChance"]
+    while biasRate > 1 do
+        if math.random() < biasRate then
+            GenomeHandler.LinkMutate(genome, true)
+        end
+        biasRate = biasRate - 1
+    end 
+    -- node         -> NodeMutate(genome)
+
+    local nodeRate = genome.mutationRates["nodeMutationChance"]
+    while nodeRate > 1 do
+        if math.random() < nodeRate then
+            LinkHandler.nodeMutate(genome)
+        end
+        nodeRate = nodeRate - 1
+    end
+    -- enable       -> EnableAndDisableMutate(genome, true)
+    -- disable       -> EnableAndDisableMutate(genome, false)
+
+end
+
+local function linkWeightMutate(genome)
+    for i=1, #genome.links do
+        if math.random() < PETURB_CHANCE then
+            genome.links[i].weight = genome.links[i].weight + math.random() * STEP_SIZE * 2 - STEP_SIZE  --- ÄNDRA DENNA KANSKE? LÄS ARTIKEL
+        else
+            genome.links[i].weight = math.random() * 4 - 2
+        end
+    end
+
+end
+
+local function LinkMutate(genome, setLastInputAsInput)
+    local neuronPosition1 = LinkHandler.getRandomNeuron(genome.links, true)     -- Kan vara en input
+    local neuronPosition2 = LinkHanlder.getRandomNeuron(genome.links, false)    -- Kan inte vara inte input
+
+    local newLink = {}
+    newLink.into = neuronPosition1
+    newLink.out = neuronPosition2
+
+    if setLastInputAsInput then
+        newLink.into = NUM_OF_INPUTS
+    end
+
+    -- Kolla så att inte den nya länken redan existerar bland de andra
+    if LinkHanlder.linkAllreadyExists(genome.links, newLink) then
+        return
+    end
+
+    newLink.innovation = PoolHandler.generateInnovationNumber()
+
+    table.insert(genome.links, newLink)
+
+end
+
 
 -- Kollar om genom1 och genom2 kan klassas som samma ras
 local function compareGenomeSameSpecies(genome1, genome2)
@@ -111,6 +198,8 @@ end
 -- bind functions
 GenomeHandler.newGenome = newGenome
 GenomeHandler.basicGenome = basicGenome
+GenomeHandler.mutateGenome = mutateGenome
+GenomeHandler.linkWeightMutate = linkWeightMutate
 GenomeHandler.compareGenomeSameSpecies = compareGenomeSameSpecies
 GenomeHandler.findDisjoints = findDisjoints
 GenomeHandler.weightDifference = weightDifference

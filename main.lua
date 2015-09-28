@@ -13,4 +13,5 @@ ConstantValues = require("ConstantValues")
 local pool = PoolHandler.newPool()
 
 PoolHandler.generateStartPool(pool);
+PoolHandler.printClass(pool);
 
