@@ -814,7 +814,7 @@ function newGeneration()
 
     cullSpecies(true) -- Cull all but the top member of each species
 
-    while #children + #pool.species < Population do                     -- Loopa så länge som antalet children(ny ras) + antalet raser < Populationen
+    while #children + #pool.species < Population do                     -- Loopa så länge som antalet children(ny ras) + antalet raser(innehåller bara en genom var) < Populationen
         local species = pool.species[math.random(1, #pool.species)]     -- Hämtar en randomras
         table.insert(children, breedChild(species))                     -- lägger till genomer till children
     end
