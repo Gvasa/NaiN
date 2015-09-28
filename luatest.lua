@@ -434,7 +434,7 @@ function randomNeuron(genes, nonInput) -- nonInput - false (inputnod)
     for _,_ in pairs(neurons) do
         count = count + 1
     end
-
+    
     local n = math.random(1, count)     -- Ta ut en randompoisition mellan 1 - antal neuroner
     
     for k,v in pairs(neurons) do        -- Hämta neuronen på denna position och skicka tillbaka

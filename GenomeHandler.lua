@@ -92,14 +92,14 @@ local function linkWeightMutate(genome)
 end
 
 local function LinkMutate(genome, setLastInputAsInput)
-    local neuronPosition1 = LinkHandler.getRandomNeuron(genome.links, true)     -- Kan vara en input
-    local neuronPosition2 = LinkHanlder.getRandomNeuron(genome.links, false)    -- Kan inte vara inte input
+    local neuronPosition1 = LinkHandler.getRandomNeuron(genome.links, true)      -- Kan vara en input
+    local neuronPosition2 = LinkHanlder.getRandomNeuron(genome.links, false)     -- Kan inte vara en en input
 
     local newLink = {}
-    newLink.into = neuronPosition1
-    newLink.out = neuronPosition2
+    newLink.into = neuronPosition1                                              -- sätt den nya länkens into till den första randomNeuronen 
+    newLink.out = neuronPosition2                                               -- sätt den nya länkens out till den andra neuronen (ej inputnod)
 
-    if setLastInputAsInput then
+    if setLastInputAsInput then                                                 -- om bias sätt into till sista input noden
         newLink.into = NUM_OF_INPUTS
     end
 
@@ -108,9 +108,9 @@ local function LinkMutate(genome, setLastInputAsInput)
         return
     end
 
-    newLink.innovation = PoolHandler.generateInnovationNumber()
+    newLink.innovation = PoolHandler.generateInnovationNumber()             -- generera ett nytt innovationsnummer för länken
 
-    table.insert(genome.links, newLink)
+    table.insert(genome.links, newLink)                                     -- lägg in länken
 
 end
 
