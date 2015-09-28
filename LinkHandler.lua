@@ -52,13 +52,13 @@ local function getRandomNeuron(links, mayBeInput)   -- mayBeInput används för 
 
     local counter = 0                               -- används för att räkna hur många neuroner vi har aktiva
 
-    for _,_ pairs(neurons) do                       -- loopa igenom alla neuroner, vi slutar med counter = #neuroner
+    for _,_ in pairs(neurons) do                       -- loopa igenom alla neuroner, vi slutar med counter = #neuroner
         counter = counter + 1
     end 
 
     local randomNumber = math.random(1,counter)     -- ta fram ett randomtal mellan 1 och counter
 
-    for position,value pairs(neurons) do            -- loopa igenom neuroner till randomnumber = 0
+    for position,value in pairs(neurons) do            -- loopa igenom neuroner till randomnumber = 0
         randomNumber = randomNumber - 1             -- retunera den position´som neruonen finns på.
         if randomNumber == 0 then
             return position
@@ -69,7 +69,7 @@ end
 -- ta en randomlänk ur samling och skapa två länkar utav denna med olika vikter.
 local function nodeMutate(genome)
 
-    if #genome.links == 0   -- kolla att vi har länkar
+    if #genome.links == 0  then -- kolla att vi har länkar
         return
     end
 
@@ -100,9 +100,28 @@ local function nodeMutate(genome)
 
 end
 
+-- byt värdet på enable / disable på en random länk beroende på bool vi skickar in
+local function EnableDisableMutate(links, inputBool)
+    local tmpLinks = {}
+
+    for i=1, #links do
+        if links[i].enabled ~= inputBool then                  
+            table.insert(tmpLinks,links[i])                         -- lägg till alla länkar som skiljer sig från den bool som skickas med
+        end
+    end
+
+    if #tmpLinks == 0 then
+        return
+    end
+
+    local randomLink = tmpLinks[math.random(1, #tmpLinks)] 
+    randomLink.enabled = not randomLink.enabled                       -- plocka ut en randomlänk och byt värde på den.
+
+end
+
 -- jämför två länkar och kolla om de är lika -- 
 local function linkAllreadyExists(links, newLink)                                   
-    for i=1, #genome.links 
+    for i=1, #links do
         if links[i].into == newLink.into and links[i].out == newLink.out then
             return true
         end
@@ -125,6 +144,7 @@ LinkHandler.copyLink = copyLink
 LinkHandler.getRandomNeuron = getRandomNeuron
 LinkHandler.linkAllreadyExists =  linkAllreadyExists
 LinkHandler.nodeMutate = nodeMutate
+LinkHandler.EnableDisableMutate = EnableDisableMutate
 LinkHandler.printClass = printClass
 
 return LinkHandler

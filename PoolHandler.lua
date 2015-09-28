@@ -17,12 +17,14 @@ local function newPool()
 end
 
     -- Lägger massa startgenomer till raser som sedan läggs till i poolen --
-local function generateStartPool(pool)
+local function generateStartPool(species)
 
     for i=1, POPULATION do
-        local tmpGenome = GenomeHandler.newGenome()
-        SpeciesHandler.addGenomeToSpecies(pool.species, tmpGenome)
+        local newGenome = GenomeHandler.basicGenome()
+        SpeciesHandler.addGenomeToSpecies(species, newGenome)
     end
+
+    -- Starta igång hela simulation
 end
 
 local function generateInnovationNumber()

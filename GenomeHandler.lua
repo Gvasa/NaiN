@@ -15,7 +15,7 @@ local function newGenome()
     genome.mutationRates["mutateConnectionChance"]  = MUTATE_CONNECTIONS_CHANCE           -- sannolikhet för att vi skall försöka ändra vikten på en länk --
     genome.mutationRates["linkMutationChance"]      = LINK_MUTATION_CHANCE                -- sannolikhet för att en ny länk skall skapas mellan två noder -- 
     genome.mutationRates["biasMutationChance"]      = BIAS_MUTATION_CHANCE                -- sannolikhet för att en länk skall skapas mellan den sista input-noden och en random-nod -- 
-    genome.mutationRates["nodeMutationChnace"]      = NODE_MUTATION_CHANCE                -- sannolikhet för att en länk skall bli två med olika vikter --
+    genome.mutationRates["nodeMutationChance"]      = NODE_MUTATION_CHANCE                -- sannolikhet för att en länk skall bli två med olika vikter --
     genome.mutationRates["disableMutationChance"]   = DISBALE_MUTATION_CHANCE             -- sannolikhet för att en länk skall blir inaktiv som är aktiv just nu och inte användas i simulationen --
     genome.mutationRates["enableMutationChance"]    = ENABLE_MUTATION_CHANCE 
 
@@ -29,13 +29,14 @@ local function basicGenome()
 
     genome.maxNeuron = NUM_OF_INPUTS
 
-    return GanomeHandler.mutateGenome(genome) -- Muterar vår genome; ändrar länkar, vikter, om den är aktiv ..
-
+    GenomeHandler.mutateGenome(genome) -- Muterar vår genome; ändrar länkar, vikter, om den är aktiv ..
+   
+    return genome
 end
 
 local function mutateGenome(genome)
     -- Ändrar alla mutateRates med +/- 5%
-    for mutation, rate in pair(genome.mutationRates) do 
+    for mutation, rate in pairs(genome.mutationRates) do 
         if math.random() > 0.5 then
             genome.mutationRates[mutation] =  1.05 * rate; 
         else 
@@ -52,7 +53,7 @@ local function mutateGenome(genome)
     local linkRate = genome.mutationRates["linkMutationChance"]
     while linkRate > 1 do
         if math.random() < linkRate then
-            GenomeHandler.LinkMutate(genome, false)
+            GenomeHandler.linkMutate(genome, false)
         end
         linkRate = linkRate - 1
     end 
@@ -62,7 +63,7 @@ local function mutateGenome(genome)
     local biasRate = genome.mutationRates["biasMutationChance"]
     while biasRate > 1 do
         if math.random() < biasRate then
-            GenomeHandler.LinkMutate(genome, true)
+            GenomeHandler.linkMutate(genome, true)
         end
         biasRate = biasRate - 1
     end 
@@ -75,9 +76,22 @@ local function mutateGenome(genome)
         end
         nodeRate = nodeRate - 1
     end
-    -- enable       -> EnableAndDisableMutate(genome, true)
-    -- disable       -> EnableAndDisableMutate(genome, false)
 
+    -- enable       -> EnableAndDisableMutate(genome, true)
+    local enableRate = genome.mutationRates["enableMutationChance"]
+    while enableRate > 1 do
+        if math.random() < enableRate then
+            LinkHandler.EnableDisableMutate(genome.links, true);
+        end
+    end
+
+    -- disable       -> EnableAndDisableMutate(genome, false)
+    local disableRate = genome.mutationRates["disableMutationChance"]
+    while disableRate > 1 do 
+        if math.random() < disableRate then
+            LinkHandler.EnableAndDisableMutate(genome.links, false)
+        end
+    end
 end
 
 local function linkWeightMutate(genome)
@@ -91,9 +105,9 @@ local function linkWeightMutate(genome)
 
 end
 
-local function LinkMutate(genome, setLastInputAsInput)
+local function linkMutate(genome, setLastInputAsInput)
     local neuronPosition1 = LinkHandler.getRandomNeuron(genome.links, true)      -- Kan vara en input
-    local neuronPosition2 = LinkHanlder.getRandomNeuron(genome.links, false)     -- Kan inte vara en en input
+    local neuronPosition2 = LinkHandler.getRandomNeuron(genome.links, false)     -- Kan inte vara en en input
 
     local newLink = {}
     newLink.into = neuronPosition1                                              -- sätt den nya länkens into till den första randomNeuronen 
@@ -104,7 +118,7 @@ local function LinkMutate(genome, setLastInputAsInput)
     end
 
     -- Kolla så att inte den nya länken redan existerar bland de andra
-    if LinkHanlder.linkAllreadyExists(genome.links, newLink) then
+    if LinkHandler.linkAllreadyExists(genome.links, newLink) then
         return
     end
 
@@ -148,7 +162,7 @@ local function findDisjoints(genome1, genome2)
 
     -- Loopa igenom genomes1 länkar och kollar om det finns en med samma innovationsnummer bland genomes 2 länkar, om inte inkrementera disjoints
     for i=1, #genome2.links do
-        if link1[genome2.links[i].innovation] ~= true then
+        if links1[genome2.links[i].innovation] ~= true then
             disjoints = disjoints + 1
         end
     end
@@ -165,7 +179,7 @@ local function weightDifference(genome1, genome2)
 
     -- Loopa igenom genomes2s länkar och kopiera in länken med index innovation
     for i=1, #genome2.links do
-        links2[genom2.links[i].innovation] = genome2.link[i]
+        links2[genome2.links[i].innovation] = genome2.links[i]
     end
 
     -- Loopa igenom genome1:s länkar och kolla om samma innovationstal finns bland genomes2:s länkar
@@ -200,6 +214,7 @@ GenomeHandler.newGenome = newGenome
 GenomeHandler.basicGenome = basicGenome
 GenomeHandler.mutateGenome = mutateGenome
 GenomeHandler.linkWeightMutate = linkWeightMutate
+GenomeHandler.linkMutate = linkMutate
 GenomeHandler.compareGenomeSameSpecies = compareGenomeSameSpecies
 GenomeHandler.findDisjoints = findDisjoints
 GenomeHandler.weightDifference = weightDifference
