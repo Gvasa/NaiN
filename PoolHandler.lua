@@ -16,6 +16,16 @@ local function newPool()
     return pool
 end
 
+    -- Lägger massa startgenomer till raser som sedan läggs till i poolen --
+local function generateStartPool(pool)
+
+    for i=1, POPULATION do
+        local tmpGenome = GenomeHandler.newGenome()
+        SpeciesHandler.addGenomeToSpecies(pool, tmpGenome)
+    end
+end
+
+
 local function printClass(pool) 
     print("")
     print("--- POOL ---- ")
@@ -28,6 +38,7 @@ local function printClass(pool)
 end
 
 PoolHandler.newPool = newPool
+PoolHandler.generateStartPool = generateStartPool
 PoolHandler.printClass = printClass
 
 return PoolHandler;

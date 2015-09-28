@@ -13,6 +13,24 @@ local function newSpecies()
     return species
 end
 
+local function addGenomeToSpecies(species, genomeToAdd)
+    local foundSpecies = false
+
+    for i=1, #species do
+        local spiecesGenome = species[i].genomes[1] 
+        if(foundSpecies == false and GenomeHandler.compareGenomeSameSpecies(speciesGenome, genomeToAdd) == true then
+            table.insert(species[i].genomes, genomeToAdd)
+            foundSpecies = true;
+        end
+    end
+
+    if foundSpecies == false then
+        local newSpecies = SpeciesHandler.newSpecies;
+        table.insert(newSpecies.genomes, genomeToAdd)
+        table.insert(species, newSpecies)
+    end
+
+end
 
 local function printClass(species) 
     print("    ---- Species ---- ")
@@ -25,6 +43,7 @@ end
 
 -- binda functioner
 SpeciesHandler.newSpecies = newSpecies
+SpeciesHandler.addGenomeToSpecies = addGenomeToSpecies
 SpeciesHandler.printClass = printClass
 
 return SpeciesHandler

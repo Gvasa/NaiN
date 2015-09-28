@@ -9,9 +9,9 @@ local function newNeuron()
 end
 
 local function printClass(neuron)
-    print("            ---- Neuron ----")
-    print("            Number of incomming links: " ..  #neuron.incommingLinks)
-    print("            Value of neuron: " .. neuron.value)
+    print("                ---- Neuron ----")
+    print("                Number of incomming links: " ..  #neuron.incommingLinks)
+    print("                Value of neuron: " .. neuron.value)
 end
 
 -- binda functioner --

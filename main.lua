@@ -11,6 +11,6 @@ ConstantValues = require("ConstantValues")
 ---------------------------------------
 
 local pool = PoolHandler.newPool()
-pool.species = SpeciesHandler.newSpecies()
-PoolHandler.printClass(pool)
-SpeciesHandler.printClass(pool.species)
+
+PoolHandler.generateStartPool(pool);
+
