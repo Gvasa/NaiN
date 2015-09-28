@@ -30,8 +30,8 @@ end
 
 -- Kollar om genom1 och genom2 kan klassas som samma ras
 local function compareGenomeSameSpecies(genome1, genome2)
-    local deltaDisjointLinks = DELTA_DISJOINT*findDisjoints(genome1, genome2)
-    local deltaWeight = DELTA_WEIGHTS*weightDifference(genome1, genome2)
+    local deltaDisjointLinks = DELTA_DISJOINT*GenomeHandler.findDisjoints(genome1, genome2)
+    local deltaWeight = DELTA_WEIGHTS*GenomeHandler.weightDifference(genome1, genome2)
 
     return deltaDisjointLinks + deltaWeight < DELTA_THRESHOLD
 end
@@ -67,7 +67,7 @@ local function findDisjoints(genome1, genome2)
     end
 
     -- Retunera en procentuell likhet bland genomernas länkar.
-    return disjoints / max(#genome1.links, #genome2.links) 
+    return disjoints / math.max(#genome1.links, #genome2.links) 
 end
 
 -- Jämnför genome1 och genome2s länkars vikter

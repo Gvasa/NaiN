@@ -20,10 +20,10 @@ local function addGenomeToSpecies(species, genomeToAdd)
     -- Loopa igenom alla raser för att finna om den nya genomen passar till någon
     for i=1, #species do
 
-        local spiecesGenome = species[i].genomes[1] -- Hämtar hem första genomen i rasen, för jämnförelse
+        local speciesGenome = species[i].genomes[1] -- Hämtar hem första genomen i rasen, för jämnförelse
 
         -- Om vi inte har hittat en ras och om genomen passar till denna rasen så lägg till den
-        if(foundSpecies == false and GenomeHandler.compareGenomeSameSpecies(speciesGenome, genomeToAdd) == true then
+        if foundSpecies == false and GenomeHandler.compareGenomeSameSpecies(speciesGenome, genomeToAdd) == true then
             table.insert(species[i].genomes, genomeToAdd)
             foundSpecies = true;
         end
@@ -31,7 +31,7 @@ local function addGenomeToSpecies(species, genomeToAdd)
 
     -- Om genomen inte passade till någon ras, skapa ny ras och lägga till genomen.
     if foundSpecies == false then
-        local newSpecies = SpeciesHandler.newSpecies;
+        local newSpecies = SpeciesHandler.newSpecies()
         table.insert(newSpecies.genomes, genomeToAdd)
         table.insert(species, newSpecies)
     end
