@@ -6,6 +6,8 @@ local function newNeuron()
     local neuron = {}
     neuron.incommingLinks = {}      -- alla inkommande länkar från andra noder -- 
     neuron.value = 0                -- värdet på denna nod --
+
+    return neuron
 end
 
 local function printClass(neuron)

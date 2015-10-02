@@ -18,7 +18,7 @@ end
 
     -- Lägger massa startgenomer till raser som sedan läggs till i poolen --
 local function generateStartPool(species)
-
+    
     for i=1, POPULATION do
         local newGenome = GenomeHandler.basicGenome()
         SpeciesHandler.addGenomeToSpecies(species, newGenome)

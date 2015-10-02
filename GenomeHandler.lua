@@ -29,6 +29,7 @@ local function basicGenome()
 
     genome.maxNeuron = NUM_OF_INPUTS
 
+
     GenomeHandler.mutateGenome(genome) -- Muterar vår genome; ändrar länkar, vikter, om den är aktiv ..
    
     return genome
@@ -44,53 +45,54 @@ local function mutateGenome(genome)
         end
     end
 
-    -- Connection   -> pointMutate
-    if math.random() < genome.mutationRates["mutateConnectionChance"] then
-        GenomeHandler.linkWeightMutate(genome)
-    end
+    -- Whilelooparna gör så om konstanterna är högre än ett är det garanterat att dessa görs minst en gång --
 
-    -- Link         -> LinkMutate(genome, false)
+    local connectionChanceRate = genome.mutationRates["mutateConnectionChance"]
+    while connectionChanceRate > 0 do
+        if math.random() < connectionChanceRate then
+            GenomeHandler.linkWeightMutate(genome, false)
+        end
+        connectionChanceRate = connectionChanceRate - 1
+    end 
+
     local linkRate = genome.mutationRates["linkMutationChance"]
-    while linkRate > 1 do
+    while linkRate > 0 do
         if math.random() < linkRate then
             GenomeHandler.linkMutate(genome, false)
         end
         linkRate = linkRate - 1
     end 
 
-    -- bias         -> LinkMutate(genome, true)
-
     local biasRate = genome.mutationRates["biasMutationChance"]
-    while biasRate > 1 do
+    while biasRate > 0 do
         if math.random() < biasRate then
             GenomeHandler.linkMutate(genome, true)
         end
         biasRate = biasRate - 1
     end 
-    -- node         -> NodeMutate(genome)
 
     local nodeRate = genome.mutationRates["nodeMutationChance"]
-    while nodeRate > 1 do
+    while nodeRate > 0 do
         if math.random() < nodeRate then
-            LinkHandler.nodeMutate(genome)
+            LinkHandler.addNodeMutate(genome)
         end
         nodeRate = nodeRate - 1
     end
 
-    -- enable       -> EnableAndDisableMutate(genome, true)
     local enableRate = genome.mutationRates["enableMutationChance"]
-    while enableRate > 1 do
+    while enableRate > 0 do
         if math.random() < enableRate then
             LinkHandler.EnableDisableMutate(genome.links, true);
         end
+        enableRate = enableRate - 1
     end
 
-    -- disable       -> EnableAndDisableMutate(genome, false)
     local disableRate = genome.mutationRates["disableMutationChance"]
-    while disableRate > 1 do 
+    while disableRate > 0 do 
         if math.random() < disableRate then
-            LinkHandler.EnableAndDisableMutate(genome.links, false)
+            LinkHandler.EnableDisableMutate(genome.links, false)
         end
+        disableRate = disableRate - 1
     end
 end
 
@@ -109,7 +111,7 @@ local function linkMutate(genome, setLastInputAsInput)
     local neuronPosition1 = LinkHandler.getRandomNeuron(genome.links, true)      -- Kan vara en input
     local neuronPosition2 = LinkHandler.getRandomNeuron(genome.links, false)     -- Kan inte vara en en input
 
-    local newLink = {}
+    local newLink = LinkHandler.newLink()
     newLink.into = neuronPosition1                                              -- sätt den nya länkens into till den första randomNeuronen 
     newLink.out = neuronPosition2                                               -- sätt den nya länkens out till den andra neuronen (ej inputnod)
 
@@ -131,17 +133,22 @@ end
 
 -- Kollar om genom1 och genom2 kan klassas som samma ras
 local function compareGenomeSameSpecies(genome1, genome2)
-    local deltaDisjointLinks = DELTA_DISJOINT*GenomeHandler.findDisjoints(genome1, genome2)
+
+    local deltaDisjointAndExcessLinks = GenomeHandler.findDisjointsAndExcess(genome1, genome2)
     local deltaWeight = DELTA_WEIGHTS*GenomeHandler.weightDifference(genome1, genome2)
 
-    return deltaDisjointLinks + deltaWeight < DELTA_THRESHOLD
+
+    return deltaDisjointAndExcessLinks + deltaWeight < DELTA_THRESHOLD
 end
 
 -- Hittar disjoints mellan de olika genomernas länkar
-local function findDisjoints(genome1, genome2)
+local function findDisjointsAndExcess(genome1, genome2)
     local links1 = {}           -- Länkarna för genome1
     local links2 = {}           -- Länkarna för genome2
     local disjoints = 0         -- Antalet disjoints
+    local excess = 0         -- Antalet disjoints
+
+
 
     -- Loppa igenom genomes 1 länkar och sätter att det finns en länk med indexet - innovationsnumret
     for i=1, #genome1.links do
@@ -156,19 +163,27 @@ local function findDisjoints(genome1, genome2)
     -- Loopa igenom genomes1 länkar och kollar om det finns en med samma innovationsnummer bland genomes 2 länkar, om inte inkrementera disjoints
     for i=1, #genome1.links do
         if links2[genome1.links[i].innovation] ~= true then
-            disjoints = disjoints + 1
+            if genome1.links[i].innovation > #links2 then
+                excess = excess + 1
+            else
+                disjoints = disjoints + 1
+            end
         end 
     end
 
     -- Loopa igenom genomes1 länkar och kollar om det finns en med samma innovationsnummer bland genomes 2 länkar, om inte inkrementera disjoints
     for i=1, #genome2.links do
         if links1[genome2.links[i].innovation] ~= true then
-            disjoints = disjoints + 1
+            if genome2.links[i].innovation > #links1 then
+                excess = excess + 1
+            else
+                disjoints = disjoints + 1
+            end
         end
     end
 
     -- Retunera en procentuell likhet bland genomernas länkar.
-    return disjoints / math.max(#genome1.links, #genome2.links) 
+    return (DELTA_DISJOINT*disjoints / math.max(#genome1.links, #genome2.links)) +  (DELTA_EXCESS*excess/ math.max(#genome1.links, #genome2.links))
 end
 
 -- Jämnför genome1 och genome2s länkars vikter
@@ -198,6 +213,48 @@ local function weightDifference(genome1, genome2)
 
 end
 
+local function GenerateNetwork(genome)
+    local newNetwork = NetworkHandler.newNetwork()
+
+    -- Lägger till inputnoder --
+    for i=1, NUM_OF_INPUTS do
+        newNetwork.neurons[i] = NeuronHandler.newNeuron()
+    end
+
+    -- Lägger till outputnoder --
+    for i=1, NUM_OF_OUTPUTS do
+        newNetwork.neurons[i+MAX_NODES] = NeuronHandler.newNeuron()
+    end
+
+
+
+    -- Sortera våra gener 
+    table.sort(genome.links, function (a,b)
+        return (a.out < b.out)
+    end)
+
+
+    
+    -- Fylla upp genomen med neuroner till alla kopplingar(länkar)
+    for i=1, #genome.links do
+        if genome.links[i].enabled then
+            -- Fyller så att länkarna har en ut neuron
+            if newNetwork.neurons[genome.links[i].out] == nil then
+                newNetwork.neurons[genome.links[i].out] = NeuronHandler.newNeuron()
+            end
+
+           table.insert(newNetwork.neurons[genome.links[i].out].incommingLinks, genome.links[i]) -- Lägger till länken bland våra incommings
+
+            -- Fyller på närverket med neuroner för ingående
+            if newNetwork.neurons[genome.links[i].into] == nil then
+                newNetwork.neurons[genome.links[i].into] = NeuronHandler.newNeuron()
+            end
+        end
+    end
+
+    genome.network = newNetwork
+end
+
 
 local function printClass(genome) 
     print("        ---- Genome ---- ")
@@ -205,7 +262,11 @@ local function printClass(genome)
     print("        Fitness: " .. genome.fitness)
     print("        Global Rank: " .. genome.globalRank)
     print("        Max neurons: " .. genome.maxNeuron)
-    print("        Network: " .. "exists")
+    if #genome.network.neurons > 0 then
+        print("        Network: Exists")
+    else 
+        print("        Network: NOPE")
+    end
 end
 
 
@@ -216,8 +277,9 @@ GenomeHandler.mutateGenome = mutateGenome
 GenomeHandler.linkWeightMutate = linkWeightMutate
 GenomeHandler.linkMutate = linkMutate
 GenomeHandler.compareGenomeSameSpecies = compareGenomeSameSpecies
-GenomeHandler.findDisjoints = findDisjoints
+GenomeHandler.findDisjointsAndExcess = findDisjointsAndExcess
 GenomeHandler.weightDifference = weightDifference
+GenomeHandler.GenerateNetwork = GenerateNetwork
 GenomeHandler.printClass = printClass
 
 return GenomeHandler

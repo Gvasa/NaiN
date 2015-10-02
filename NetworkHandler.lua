@@ -14,6 +14,7 @@ local function printClass(network)
     print("            Number of neurons: " .. #network.neurons)
 end
 
+NetworkHandler.newNetwork = newNetwork
 NetworkHandler.printClass = printClass
 
 return NetworkHandler;

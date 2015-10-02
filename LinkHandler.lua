@@ -17,11 +17,11 @@ end
 
 -- kopierar en redan existerande link --
 local function copyLink(link)
-    local newLink = LinkHanlder.newLink()
+    local newLink = LinkHandler.newLink()
     newLink.into        = link.into
-    newlink.out         = link.out
-    newlink.wieght      = link.weight
-    newlink.enable      = link.enable
+    newLink.out         = link.out
+    newLink.wieght      = link.weight
+    newLink.enabled     = link.enabled
     newLink.innovation  = link.innovation
 
     return newLink
@@ -66,8 +66,8 @@ local function getRandomNeuron(links, mayBeInput)   -- mayBeInput används för 
     end
 end
 
--- ta en randomlänk ur samling och skapa två länkar utav denna med olika vikter.
-local function nodeMutate(genome)
+-- ta en randomlänk ur samling och skapa två länkar utav denna med olika vikter. Skapar en neuron mellan dessa länkar
+local function addNodeMutate(genome)
 
     if #genome.links == 0  then -- kolla att vi har länkar
         return
@@ -77,11 +77,11 @@ local function nodeMutate(genome)
 
     local randomLink = genome.links[math.random(1, #genome.links)]      -- plocka en randomlänk ur de´länkar vi har
     
-    if randomLink.enable == false then                                  -- kolla att länken i fråga är aktiv
+    if randomLink.enabled == false then                                  -- kolla att länken i fråga är aktiv
         return                                                          -- om ej aktiv returnera
     end
 
-    randomLink.enable = false                                           -- sätt randomlänk till inaktiv
+    randomLink.enabled = false                                           -- sätt randomlänk till inaktiv
 
     local newLink1 = LinkHandler.copyLink(randomLink)                   -- kopiera över länken till två nya länkar
     local newLink2 = LinkHandler.copyLink(randomLink)
@@ -89,11 +89,11 @@ local function nodeMutate(genome)
     newLink1.out            = genome.maxNeuron                          -- sätter länk1 utneuron till maxneuroner
     newLink1.wieght         = 1                                         -- länk1 vikt sätts till 1
     newLink1.innovation     = PoolHandler.generateInnovationNumber()    -- generera ett innovationsnummer för vår nya länk
-    newLink1.enable         = true                                      -- sätt den till aktiv
+    newLink1.enabled        = true                                      -- sätt den till aktiv
 
     newLink2.into           = genome.maxNeuron                          -- sätt länk2 into till maxneuroner (nu är länk1 och länk2 kopplade)
     newLink2.innovation     = PoolHandler.generateInnovationNumber()    -- generera ett nytt innovationsnummer för vår nya länk
-    newLink2.enable         = true                                      -- sätt den till aktiv
+    newLink2.enabled        = true                                      -- sätt den till aktiv
 
     table.insert(genome.links, newLink1)                                -- lägg in våra nyskapade länkar till vår linktable
     table.insert(genome.links, newLink2)
@@ -135,7 +135,11 @@ local function printClass(link)
     print("            Out: " .. link.out)
     print("            Weight: " .. link.weight)
     print("            Innovation number: " .. link.innovation)
-    print("            Enabled: " .. link.enalbed)
+    if link.enabled then
+        print("            Enabled: TRUE") 
+    else
+        print("            Enabled: FALSE")
+    end
 end
 
 -- binda functioner
@@ -143,7 +147,7 @@ LinkHandler.newLink = newLink
 LinkHandler.copyLink = copyLink
 LinkHandler.getRandomNeuron = getRandomNeuron
 LinkHandler.linkAllreadyExists =  linkAllreadyExists
-LinkHandler.nodeMutate = nodeMutate
+LinkHandler.addNodeMutate = addNodeMutate
 LinkHandler.EnableDisableMutate = EnableDisableMutate
 LinkHandler.printClass = printClass
 
