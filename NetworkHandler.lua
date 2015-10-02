@@ -10,16 +10,25 @@ local function newNetwork()
 end
 
 local function evaluateNetworkForOutput(network)
-    local inputs = UtilHandler.getWorldInputs()                                 -- get all the world inputs
+    --local inputs = UtilHandler.getWorldInputs()                                 -- get all the world inputs
+    local inputs = {}
 
-    inputs = inputs + 1;                                                        -- add 1 to get 170
+    for i=1, 169 do
+        if  math.random() > 0.5 then 
+            inputs[i] = 1
+        else
+            inputs[i] = 0
+        end
+    end
+
+    table.insert(inputs, 1)                                                        -- add 1 to get 170
 
     if #inputs ~= NUM_OF_INPUTS then                                            -- check if the given input is as expected
         return
     end
 
     for i=1, NUM_OF_INPUTS do                                                   -- set the values of all the input nodes in the network
-        network.neurons[i] = inputs[i]
+        network.neurons[i].value = inputs[i]
     end
  
     for i=1, #network.neurons do                                                -- here we calculate the value for all the hidden nodes + output nodes
@@ -37,11 +46,11 @@ local function evaluateNetworkForOutput(network)
         end
 
     end
-
-    local outputs                                                                -- set if the outputs should be pressed or not
+    
+    local outputs = {}                                                             -- set if the outputs should be pressed or not
     for i=1, NUM_OF_OUTPUTS do
         local button = "P1 " .. BUTTON_NAMES[i]
-        if network.neurons[i+MAX_NODES] > 0                                     -- the sigmoid function returns a value between -0.5 to 0.5
+        if network.neurons[i+MAX_NODES].value > 0   then                                   -- the sigmoid function returns a value between -0.5 to 0.5
             outputs[button] = true;                                             -- if the value is > 0 = press the button
         else
             outputs[button] = false;

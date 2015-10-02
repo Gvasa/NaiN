@@ -48,8 +48,9 @@ end
 local function setControllerInput(genome)
 
 	--local currentGenome = pool.species[pool.currentSpecies].genomes[pool.currentGenome]
-	local outputs = evaluateNetworkForOutput(genome.network)
-		
+	local outputs = NetworkHandler.evaluateNetworkForOutput(genome.network)
+
+
 	if outputs["P1 Up"] and outputs["P1 Down"] then
 		outputs["P1 Up"] = false
 		outputs["P1 Down"] = false
@@ -60,8 +61,11 @@ local function setControllerInput(genome)
 		outputs["P1 Left"] = false
 	end
 
-	joypad.set(outputs) 								-- set the joypads(simulated controller) ´with the output values.
+	--joypad.set(outputs) 								-- set the joypads(simulated controller) ´with the output values.
+	joypad = outputs
+
 	return outputs
+
 end
 
 local function findNextGenome(pool)
@@ -88,7 +92,8 @@ main.setControllerInput(pool.species[pool.currentSpecies].genomes[pool.currentGe
 
 PoolHandler.printClass(pool)
 
-while true do
+--while true do
+for k = 1, 10 do
 	-- måla gui
 	-- 
 	local currentGenome = pool.species[pool.currentSpecies].genomes[pool.currentGenome]		-- gets the current genome
@@ -97,17 +102,17 @@ while true do
 		outputs = main.setControllerInput(currentGenome) 									-- calculate new output values every 5th frame			
 	end
 
-	joypad.set(outputs)																		-- even if we dont calculate new values, set the joypad to the previous calculated outputs
+	--joypad.set(outputs)																		-- even if we dont calculate new values, set the joypad to the previous calculated outputs
+	joypad = outputs
+	--local marioPositions = UtilHandler.getPositions()
 
-	local marioPositions = UtilHandler.getPositions()
+	-- if lastPosition ~= marioPositions.marioX then											-- check if mario is standing still or not
+	-- 	timeout = TIMEOUT_CONSTANT 															-- if he moves reset the timeout timer
+	-- end
 
-	if lastPosition ~= marioPositions.marioX then											-- check if mario is standing still or not
-		timeout = TIMEOUT_CONSTANT 															-- if he moves reset the timeout timer
-	end
-
-	if marioPositions.marioX > rightMost then 												-- if mario is further to the right than before then update rightmost
-		rightMost = marioPositions.marioX
-	end
+	-- if marioPositions.marioX > rightMost then 												-- if mario is further to the right than before then update rightmost
+	-- 	rightMost = marioPositions.marioX
+	-- end
 
 	timeout = timeout - 1 																	-- tick down the timeout timer
  	
@@ -130,10 +135,10 @@ while true do
 
 		main.findNextGenome() 																-- search for the next genome to simulate, will change the current species and current genome of the pool.
 
-		startRun() 																			-- start a run with the next genome
+		startRun(pool) 																			-- start a run with the next genome
 
 	end
-
+	
 
 
 end
