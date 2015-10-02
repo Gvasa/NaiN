@@ -213,7 +213,7 @@ local function weightDifference(genome1, genome2)
 
 end
 
-local function GenerateNetwork(genome)
+local function generateNetwork(genome)
     local newNetwork = NetworkHandler.newNetwork()
 
     -- Lägger till inputnoder --
@@ -226,15 +226,11 @@ local function GenerateNetwork(genome)
         newNetwork.neurons[i+MAX_NODES] = NeuronHandler.newNeuron()
     end
 
-
-
     -- Sortera våra gener 
     table.sort(genome.links, function (a,b)
         return (a.out < b.out)
     end)
 
-
-    
     -- Fylla upp genomen med neuroner till alla kopplingar(länkar)
     for i=1, #genome.links do
         if genome.links[i].enabled then
@@ -254,7 +250,6 @@ local function GenerateNetwork(genome)
 
     genome.network = newNetwork
 end
-
 
 local function printClass(genome) 
     print("        ---- Genome ---- ")
@@ -279,7 +274,7 @@ GenomeHandler.linkMutate = linkMutate
 GenomeHandler.compareGenomeSameSpecies = compareGenomeSameSpecies
 GenomeHandler.findDisjointsAndExcess = findDisjointsAndExcess
 GenomeHandler.weightDifference = weightDifference
-GenomeHandler.GenerateNetwork = GenerateNetwork
+GenomeHandler.generateNetwork = generateNetwork
 GenomeHandler.printClass = printClass
 
 return GenomeHandler

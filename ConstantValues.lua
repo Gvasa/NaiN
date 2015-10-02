@@ -34,6 +34,6 @@ DISBALE_MUTATION_CHANCE = 0.4                 	-- sannolikhet för att en länk 
 ENABLE_MUTATION_CHANCE = 0.2                  	-- sannolikhet för att en länk skall bli aktiv från inaktiv och användas i simulationen --
 
 STEP_SIZE = 0.1                              	-- används när vi MODIFIERAR gamla vikter i pointMutate -- 
-TIMEOUT_CONSTANT = 20                        	-- hur länge mario får stå still innan vi avbryter nuvarande simulation -- 
+TIMEOUT_CONSTANT = 200                       	-- hur länge mario får stå still innan vi avbryter nuvarande simulation -- 
 
 MAX_NODES = 1000000                          	-- hur många noder som max får finnas i en Genome --
