@@ -25,13 +25,28 @@ end
 -- Skapar en basic ganom och muterar den. Anropas bara när vi skapar den nya poolen.
 local function basicGenome()      
     local genome = newGenome()
-    local innovation = 1
 
     genome.maxNeuron = NUM_OF_INPUTS
 
-
     GenomeHandler.mutateGenome(genome) -- Muterar vår genome; ändrar länkar, vikter, om den är aktiv ..
    
+    return genome
+end
+
+local function copyGenome(genome1)
+    local genome = GenomeHandler.newGenome()
+
+    for i = 1, #genome1.links do
+        table.insert(genome.links, LinkHandler.copyLink(genome1.links[i]))
+    end
+
+    genome.mutationRates["mutateConnectionChance"]  = genome1.mutationRates["mutateConnectionChance"]  
+    genome.mutationRates["linkMutationChance"]      = genome1.mutationRates["linkMutationChance"]      
+    genome.mutationRates["biasMutationChance"]      = genome1.mutationRates["biasMutationChance"]      
+    genome.mutationRates["nodeMutationChance"]      = genome1.mutationRates["nodeMutationChance"]      
+    genome.mutationRates["disableMutationChance"]   = genome1.mutationRates["disableMutationChance"]   
+    genome.mutationRates["enableMutationChance"]    = genome1.mutationRates["enableMutationChance"]    
+
     return genome
 end
 
@@ -104,7 +119,6 @@ local function linkWeightMutate(genome)
             genome.links[i].weight = math.random() * 4 - 2
         end
     end
-
 end
 
 local function linkMutate(genome, setLastInputAsInput)
@@ -125,9 +139,9 @@ local function linkMutate(genome, setLastInputAsInput)
     end
 
     newLink.innovation = PoolHandler.generateInnovationNumber()             -- generera ett nytt innovationsnummer för länken
+    newLink.weight = math.random()*4-2
 
     table.insert(genome.links, newLink)                                     -- lägg in länken
-
 end
 
 
@@ -183,7 +197,7 @@ local function findDisjointsAndExcess(genome1, genome2)
     end
 
     -- Retunera en procentuell likhet bland genomernas länkar.
-    return (DELTA_DISJOINT*disjoints / math.max(#genome1.links, #genome2.links)) +  (DELTA_EXCESS*excess/ math.max(#genome1.links, #genome2.links))
+    return (DELTA_DISJOINT*disjoints / math.max(#genome1.links, #genome2.links)) + (DELTA_EXCESS*excess/ math.max(#genome1.links, #genome2.links))
 end
 
 -- Jämnför genome1 och genome2s länkars vikter
@@ -214,8 +228,9 @@ local function weightDifference(genome1, genome2)
 end
 
 local function generateNetwork(genome)
-    local newNetwork = NetworkHandler.newNetwork()
-
+   -- local newNetwork = NetworkHandler.newNetwork()
+    local newNetwork = {}
+    newNetwork.neurons = {}
     -- Lägger till inputnoder --
     for i=1, NUM_OF_INPUTS do
         newNetwork.neurons[i] = NeuronHandler.newNeuron()
@@ -225,7 +240,8 @@ local function generateNetwork(genome)
     for i=1, NUM_OF_OUTPUTS do
         newNetwork.neurons[i+MAX_NODES] = NeuronHandler.newNeuron()
     end
-
+   -- NeuronHandler.printClass(newNetwork.neurons[6+MAX_NODES])
+   
     -- Sortera våra gener 
     table.sort(genome.links, function (a,b)
         return (a.out < b.out)
@@ -239,7 +255,8 @@ local function generateNetwork(genome)
                 newNetwork.neurons[genome.links[i].out] = NeuronHandler.newNeuron()
             end
 
-           table.insert(newNetwork.neurons[genome.links[i].out].incommingLinks, genome.links[i]) -- Lägger till länken bland våra incommings
+            local neuron = newNetwork.neurons[genome.links[i].out]
+           table.insert(neuron.incommingLinks, genome.links[i]) -- Lägger till länken bland våra incommings
 
             -- Fyller på närverket med neuroner för ingående
             if newNetwork.neurons[genome.links[i].into] == nil then
@@ -249,6 +266,111 @@ local function generateNetwork(genome)
     end
 
     genome.network = newNetwork
+end
+
+local function removeWeakGenomes(species, onlyKeepBestGenome)
+    local genomesToKeep
+
+    for i=1, #species do
+        if onlyKeepBestGenome == true then
+            genomesToKeep = 1
+        else
+            genomesToKeep = math.ceil(#species[i].genomes / 2)
+        end
+
+        table.sort(species[i].genomes, function(a, b)
+                    return a.fitness > b.fitness
+                    end)
+        
+        while #species[i].genomes > genomesToKeep do
+            table.remove(species[i].genomes)
+        end
+    end
+end
+
+local function createNewChild(genomes)
+        
+    local child = {}
+    local random1 = 0
+    local random2 = 0
+
+   -- GenomeHandler.printClass(genomes[1])
+
+    if #genomes == 1 then
+        random1 = 1
+        random2 = 1
+    else
+        random1 = math.random(1, #genomes)
+        random2 = math.random(1, #genomes)
+    end
+
+    if math.random() < CROSSOVER_CHANCE then
+        local mom = genomes[random1]
+        local dad = genomes[random2]
+        child = GenomeHandler.initializeLoveMaking(mom, dad)
+    else
+        local dad = genomes[random1]
+       -- print("randomtal: " .. random1)
+        --GenomeHandler.printClass(mom)
+        child = GenomeHandler.copyGenome(dad)
+    end
+
+    GenomeHandler.mutateGenome(child)
+
+    return child
+    
+end
+
+local function initializeLoveMaking(mom, dad)
+
+    local newGenome = newGenome()
+
+    if mom.fitness > dad.fitness then
+        local temp = mom
+        mom = dad
+        dad = temp
+    end
+
+    local momInnovations = {}
+    for i = 1, #mom.links do
+        momInnovations[mom.links[i].innovation] = mom.links[i]
+    end
+
+    for i = 1, #dad.links do
+        local dadLink = dad.links[i]
+        local momLink = momInnovations[dadLink.innovation]
+
+        if momLink ~= nil and math.random() < 0.5 and momLink.enabled then
+            table.insert(newGenome.links, LinkHandler.copyLink(momLink))
+        else 
+            table.insert(newGenome.links, LinkHandler.copyLink(dadLink))
+        end
+    end
+
+    newGenome.maxNeuron = math.max(dad.maxNeuron, mom.maxNeuron)
+
+    for mutation, rate in pairs(dad.mutationRates) do
+        newGenome.mutationRates[mutation] = rate
+    end
+
+    return newGenome
+end
+
+local function fillUpNewChildren(species, newChildren)
+
+ --   print("i fillUpNewChildren")
+ --   print("species : " .. #species)
+
+ --   print("newchildren: " .. #newChildren)
+
+    while #species + #newChildren < POPULATION do
+       -- local genome = species[math.random(1, #species)].genome[1]
+        --GenomeHandler.printClass(genome)
+        table.insert(newChildren, GenomeHandler.createNewChild(species[math.random(1, #species)].genomes))
+        
+    end
+    print("efter createnewchild fillup: " .. #newChildren)
+   -- return newChildren
 end
 
 local function printClass(genome) 
@@ -268,13 +390,23 @@ end
 -- bind functions
 GenomeHandler.newGenome = newGenome
 GenomeHandler.basicGenome = basicGenome
+GenomeHandler.copyGenome = copyGenome
+
 GenomeHandler.mutateGenome = mutateGenome
 GenomeHandler.linkWeightMutate = linkWeightMutate
 GenomeHandler.linkMutate = linkMutate
+
 GenomeHandler.compareGenomeSameSpecies = compareGenomeSameSpecies
 GenomeHandler.findDisjointsAndExcess = findDisjointsAndExcess
 GenomeHandler.weightDifference = weightDifference
+
 GenomeHandler.generateNetwork = generateNetwork
+
+GenomeHandler.removeWeakGenomes = removeWeakGenomes
+GenomeHandler.createNewChild = createNewChild
+GenomeHandler.initializeLoveMaking = initializeLoveMaking
+GenomeHandler.fillUpNewChildren = fillUpNewChildren
+
 GenomeHandler.printClass = printClass
 
 return GenomeHandler

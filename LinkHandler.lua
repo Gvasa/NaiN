@@ -70,6 +70,7 @@ end
 local function addNodeMutate(genome)
 
     if #genome.links == 0  then -- kolla att vi har länkar
+        print("addNodeMutate - Genome.links är tom")
         return
     end
 
@@ -97,7 +98,6 @@ local function addNodeMutate(genome)
 
     table.insert(genome.links, newLink1)                                -- lägg in våra nyskapade länkar till vår linktable
     table.insert(genome.links, newLink2)
-
 end
 
 -- byt värdet på enable / disable på en random länk beroende på bool vi skickar in
@@ -116,7 +116,6 @@ local function EnableDisableMutate(links, inputBool)
 
     local randomLink = tmpLinks[math.random(1, #tmpLinks)] 
     randomLink.enabled = not randomLink.enabled                       -- plocka ut en randomlänk och byt värde på den.
-
 end
 
 -- jämför två länkar och kolla om de är lika -- 

@@ -24,32 +24,36 @@ local timeout 	= 0
 
 -- Sätter startvärden är simulationen
 local function startRun(pool)
+	print("start run för Generation: " ..  pool.generation .. ", currentSpecies: " .. pool.currentSpecies .. ", currentGenome: " .. pool.currentGenome)
+	savestate.load(SAVE_STATE)
 	rightMost 			= 0
 	pool.currentFrame 	= 0
-	timeout 			= 0
+	lastPosition 		= 0
+	timeout 			= TIMEOUT_CONSTANT
 
-	main.clearController()																	-- Clear controller
-	local currentGenome = pool.species[pool.currentSpecies].genomes[pool.currentGenome] 	-- Hämta nuvarande genome
-	GenomeHandler.generateNetwork(currentGenome)			
+	main.clearController()		
+																-- Clear controller
+	local currentSpecies = pool.species[pool.currentSpecies]
+	local currentGenome = currentSpecies.genomes[pool.currentGenome] 	-- Hämta nuvarande genome
+	GenomeHandler.generateNetwork(currentGenome)	
 	main.setControllerInput(currentGenome)
 end
 
 -- Sätter kontrollern så vi inte klickar på någon knapp
 local function clearController()
-	local emptyController = {} 								-- Skapar en tom controller
+	outputs = {}							-- Skapar en tom controller
 	for i=1, NUM_OF_OUTPUTS do 								-- Loopa igenom alla knappar
-		emptyController["P1 " .. BUTTON_NAMES[i]] = false 	-- Sätter knapparna till false(Att vi inte klickar på dom)
+		outputs["P1 " .. BUTTON_NAMES[i]] = false 	-- Sätter knapparna till false(Att vi inte klickar på dom)
 	end
 
-	--joypad.set(emptyController) 							-- Sätter vår joypad
-	joypad = emptyController
+	joypad.set(outputs) 							-- Sätter vår joypad
+	--joypad = emptyController
 end
 
 local function setControllerInput(genome)
 
 	--local currentGenome = pool.species[pool.currentSpecies].genomes[pool.currentGenome]
-	local outputs = NetworkHandler.evaluateNetworkForOutput(genome.network)
-
+	outputs = NetworkHandler.evaluateNetworkForOutput(genome.network)
 
 	if outputs["P1 Up"] and outputs["P1 Down"] then
 		outputs["P1 Up"] = false
@@ -61,10 +65,8 @@ local function setControllerInput(genome)
 		outputs["P1 Left"] = false
 	end
 
-	--joypad.set(outputs) 								-- set the joypads(simulated controller) ´with the output values.
-	joypad = outputs
-
-	return outputs
+	joypad.set(outputs) 								-- set the joypads(simulated controller) ´with the output values.
+	--joypad = outputs
 
 end
 
@@ -88,35 +90,40 @@ local pool = PoolHandler.newPool()
 -- Generera populationen med arter --
 PoolHandler.generateStartPool(pool.species);
 main.startRun(pool)
-main.setControllerInput(pool.species[pool.currentSpecies].genomes[pool.currentGenome])
+print("Före while, har initiliazat en start pool")
+--PoolHandler.printClass(pool)
 
-PoolHandler.printClass(pool)
-
---while true do
-for k = 1, 10 do
+while true do
+--for k = 1, 10 do
 	-- måla gui
 	-- 
+	--print(k)
 	local currentGenome = pool.species[pool.currentSpecies].genomes[pool.currentGenome]		-- gets the current genome
 
 	if pool.currentFrame % 5 then
-		outputs = main.setControllerInput(currentGenome) 									-- calculate new output values every 5th frame			
+		main.setControllerInput(currentGenome) 									-- calculate new output values every 5th frame			
+		--print(string.format("Outputs -  A: %t, B: %t, Up: %t, Down: %t, Left: %t, Right: %t",	outputs["A"], outputs["B"], outputs["Up"], outputs["Down"], outputs["Left"], outputs["Right"]))
 	end
 
-	--joypad.set(outputs)																		-- even if we dont calculate new values, set the joypad to the previous calculated outputs
-	joypad = outputs
-	--local marioPositions = UtilHandler.getPositions()
+	joypad.set(outputs)																		-- even if we dont calculate new values, set the joypad to the previous calculated outputs
+	--joypad = outputs
+	local marioPositions = UtilHandler.getPositions()
 
-	-- if lastPosition ~= marioPositions.marioX then											-- check if mario is standing still or not
-	-- 	timeout = TIMEOUT_CONSTANT 															-- if he moves reset the timeout timer
-	-- end
+	if lastPosition ~= marioPositions.marioX then											-- check if mario is standing still or not
+																	-- if he moves reset the timeout timer
+		lastPosition = marioPositions.marioX
+	end
 
-	-- if marioPositions.marioX > rightMost then 												-- if mario is further to the right than before then update rightmost
-	-- 	rightMost = marioPositions.marioX
-	-- end
+	if marioPositions.marioX > rightMost then 	
+		timeout = TIMEOUT_CONSTANT 											-- if mario is further to the right than before then update rightmost
+		rightMost = marioPositions.marioX
+	end
 
 	timeout = timeout - 1 																	-- tick down the timeout timer
  	
-	if timeout <= 0 then 																	-- if mario has been standing still for to long
+	if timeout <= 0 then 	
+
+																							-- if mario has been standing still for to long
 		local fitness = rightMost + pool.currentFrame / 3.0 								-- calculate the fitnesss
 		if rightMost > 3186 then  															-- if mario finish the level give him a fuckingMILLION FITNESS POINTS
 			fitness = fitness + 1000000
@@ -131,16 +138,17 @@ for k = 1, 10 do
 		if fitness > pool.maxFitness then 													-- update the pools maxfitness if needed
 			pool.maxFitness = fitness 												
 		end
-
-
-		main.findNextGenome() 																-- search for the next genome to simulate, will change the current species and current genome of the pool.
-
-		startRun(pool) 																			-- start a run with the next genome
-
+		print("Fitness: " .. fitness)
+		print("----------Leta ny genom!-------------")
+		PoolHandler.findNextGenome(pool) 																-- search for the next genome to simulate, will change the current species and current genome of the pool.
+		--PoolHandler.printClass(pool)
+		
+		main.startRun(pool) 																			-- start a run with the next genome
+		
 	end
-	
 
-
+	pool.currentFrame = pool.currentFrame + 1
+	emu.frameadvance();
 end
 
 
