@@ -15,6 +15,7 @@ local outputs 	= {}
 local lastPosition = 0
 local rightMost = 0
 local timeout 	= 0
+
 ---------------------------------------
 
 
@@ -54,7 +55,9 @@ local function setControllerInput(genome)
 
 	--local currentGenome = pool.species[pool.currentSpecies].genomes[pool.currentGenome]
 	outputs = NetworkHandler.evaluateNetworkForOutput(genome.network)
-
+	if outputs[1] then
+		print("truue p1")
+	end
 	if outputs["P1 Up"] and outputs["P1 Down"] then
 		outputs["P1 Up"] = false
 		outputs["P1 Down"] = false
@@ -90,22 +93,45 @@ local pool = PoolHandler.newPool()
 -- Generera populationen med arter --
 PoolHandler.generateStartPool(pool.species);
 main.startRun(pool)
+
+
 print("Före while, har initiliazat en start pool")
 --PoolHandler.printClass(pool)
 
 while true do
---for k = 1, 10 do
-	-- måla gui
-	-- 
-	--print(k)
-	local currentGenome = pool.species[pool.currentSpecies].genomes[pool.currentGenome]		-- gets the current genome
+	local currentGenome = pool.species[pool.currentSpecies].genomes[pool.currentGenome]	
+
+	local bgColor = 0xEEFFFAFA
+	local blackColor = 0xDD000000
+	gui.drawBox(5, 201, 248, 230, blackColor, bgColor)
+	gui.drawText(5, 200, "Gen:" .. pool.generation .. " species:" .. pool.currentSpecies .. " brain:" .. pool.currentGenome, 0xFF000000, 10)
+	gui.drawText(5, 211, "cFit:" .. math.floor(rightMost - pool.currentFrame / 4.0) .. " mFit:" .. pool.maxFitness, 0xFF000000, 10)
+
+	gui.drawLine(160, 201, 160, 248, blackColor)
 
 	if pool.currentFrame % 5 then
 		main.setControllerInput(currentGenome) 									-- calculate new output values every 5th frame			
 		--print(string.format("Outputs -  A: %t, B: %t, Up: %t, Down: %t, Left: %t, Right: %t",	outputs["A"], outputs["B"], outputs["Up"], outputs["Down"], outputs["Left"], outputs["Right"]))
 	end
+	
+	joypad.set(outputs)	
+	local xOffset = 0
+	local yOffset = 0
+	for i = 1, #BUTTON_NAMES do
+		if outputs["P1 " .. BUTTON_NAMES[i]] then 
+			gui.drawText(165+xOffset*26, 200 + yOffset, BUTTON_NAMES[i], 0xFF00CC00, 9)
+		else 
+			gui.drawText(165+xOffset*26, 200 + yOffset, BUTTON_NAMES[i], 0xFF000000, 9)
+		end
 
-	joypad.set(outputs)																		-- even if we dont calculate new values, set the joypad to the previous calculated outputs
+		xOffset = xOffset + 1
+
+		if xOffset == 3 then
+			xOffset = 0
+			yOffset = 10
+		end
+
+	end																	-- even if we dont calculate new values, set the joypad to the previous calculated outputs
 	--joypad = outputs
 	local marioPositions = UtilHandler.getPositions()
 
@@ -124,7 +150,7 @@ while true do
 	if timeout <= 0 then 	
 
 																							-- if mario has been standing still for to long
-		local fitness = math.floor(rightMost + pool.currentFrame / 4.0) 								-- calculate the fitnesss
+		local fitness = math.floor(rightMost - pool.currentFrame / 4.0) 								-- calculate the fitnesss
 		if rightMost > 3186 then  															-- if mario finish the level give him a fuckingMILLION FITNESS POINTS
 			fitness = fitness + 1000000
 		end

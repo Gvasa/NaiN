@@ -12,7 +12,7 @@ local function newPool()
     pool.currentGenome = 1      -- nuvarande genom som testas --
     pool.currentFrame = 0       -- vilken frame vi är på i emulationen --
     pool.maxFitness = 0         -- bästa värdet vi nånsin uppnåt -- 
-
+    pool.maxGenerationFitness = 0
     return pool
 end
 

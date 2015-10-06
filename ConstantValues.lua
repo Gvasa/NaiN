@@ -1,4 +1,4 @@
-SAVE_STATE = "SMB1-1.state"                   -- vi sparar ett state i början på spelet så vi kan ladda om från start hela tiden --
+SAVE_STATE = "superMario1-1.state"                   -- vi sparar ett state i början på spelet så vi kan ladda om från start hela tiden --
 BUTTON_NAMES = {                             -- vilka möjliga outputs vi har --
     "A",
     "B",
@@ -35,6 +35,6 @@ PETURB_CHANCE = 0.90                            -- sannolikhet för att vikten s
 CROSSOVER_CHANCE = 0.75                         -- sannolikhet för att ett barn skall skapas av två genomer, annars kopieras bara en genom till barnet -- 
 
 STEP_SIZE = 0.1                              	-- används när vi MODIFIERAR gamla vikter i pointMutate -- 
-TIMEOUT_CONSTANT = 35                         	-- hur länge mario får stå still innan vi avbryter nuvarande simulation -- 
+TIMEOUT_CONSTANT = 70                        	-- hur länge mario får stå still innan vi avbryter nuvarande simulation -- 
 
 MAX_NODES = 1000000                          	-- hur många noder som max får finnas i en Genome --
