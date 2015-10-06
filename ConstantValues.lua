@@ -14,7 +14,7 @@ INPUT_SIZE = (BOX_RADIUS*2+1)*(BOX_RADIUS*2+1) --
 NUM_OF_INPUTS = INPUT_SIZE+1           	        -- hur många inputs vi har från världen --
 NUM_OF_OUTPUTS = #BUTTON_NAMES                  -- hur många outputs vi har (beror på kontrollen)
 
-POPULATION = 1000--300                            	-- hur många genomer som får finnas för varje generation --
+POPULATION = 200--300                            	-- hur många genomer som får finnas för varje generation --
 
 DELTA_DISJOINT 	= 2.0                         	-- används för att bestämma hur stor skillnad det får vara mellan genomer för att de ska tillhöra samma ras (2.0)--
 DELTA_EXCESS 	= 2.0 
