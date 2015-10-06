@@ -20,7 +20,7 @@ local function copyLink(link)
     local newLink = LinkHandler.newLink()
     newLink.into        = link.into
     newLink.out         = link.out
-    newLink.wieght      = link.weight
+    newLink.weight      = link.weight
     newLink.enabled     = link.enabled
     newLink.innovation  = link.innovation
 
@@ -88,7 +88,7 @@ local function addNodeMutate(genome)
     local newLink2 = LinkHandler.copyLink(randomLink)
 
     newLink1.out            = genome.maxNeuron                          -- sätter länk1 utneuron till maxneuroner
-    newLink1.wieght         = 1                                         -- länk1 vikt sätts till 1
+    newLink1.weight         = 1                                         -- länk1 vikt sätts till 1
     newLink1.innovation     = PoolHandler.generateInnovationNumber()    -- generera ett innovationsnummer för vår nya länk
     newLink1.enabled        = true                                      -- sätt den till aktiv
 

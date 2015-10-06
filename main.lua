@@ -19,8 +19,6 @@ local timeout 	= 0
 ---------------------------------------
 
 
-
-
 ------------ Funktioner ---------------
 
 -- Sätter startvärden är simulationen
@@ -93,8 +91,6 @@ local pool = PoolHandler.newPool()
 -- Generera populationen med arter --
 PoolHandler.generateStartPool(pool.species);
 main.startRun(pool)
-
-
 print("Före while, har initiliazat en start pool")
 --PoolHandler.printClass(pool)
 
