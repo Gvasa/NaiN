@@ -47,6 +47,7 @@ local function findNextGenome(pool)
             pool.currentSpecies = pool.currentSpecies+1
             return
         else
+            UtilHandler.writeJsonToFile(pool)
             print("skapa ny generations")
             pool.currentGenome = 1
             pool.currentSpecies = 1

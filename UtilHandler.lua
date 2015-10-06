@@ -1,4 +1,5 @@
 local UtilHandler = {}
+local json = require ("dkjson") --För att parsa till json
 
 -- hämta världsinfo INTE VÅR SKIT FÖR TILLFÄLLET!
 
@@ -83,12 +84,22 @@ local function getSprites()
     end
     
     return sprites
+end
 
+local function writeJsonToFile(pool)
+    
+    local fileName = "generation-" .. pool.generation .. ".json"
+    print("Write to file: " .. fileName)
+    local outPut = json.encode (pool, { indent = true })
+    local file = io.open(fileName, "w")
+    file:write(outPut)
+    file:close()
 end
 
 UtilHandler.getWorldInputs = getWorldInputs
 UtilHandler.getPositions = getPositions
 UtilHandler.getTile = getTile
 UtilHandler.getSprites = getSprites
+UtilHandler.writeJsonToFile = writeJsonToFile
 
 return UtilHandler
