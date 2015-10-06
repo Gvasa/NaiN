@@ -14,12 +14,12 @@ INPUT_SIZE = (BOX_RADIUS*2+1)*(BOX_RADIUS*2+1) --
 NUM_OF_INPUTS = INPUT_SIZE+1           	        -- hur många inputs vi har från världen --
 NUM_OF_OUTPUTS = #BUTTON_NAMES                  -- hur många outputs vi har (beror på kontrollen)
 
-POPULATION = 150--300                            	-- hur många genomer som får finnas för varje generation --
+POPULATION = 1000--300                            	-- hur många genomer som får finnas för varje generation --
 
-DELTA_DISJOINT 	= 1.0                         	-- används för att bestämma hur stor skillnad det får vara mellan genomer för att de ska tillhöra samma ras (2.0)--
-DELTA_EXCESS 	= 1.0 
+DELTA_DISJOINT 	= 2.0                         	-- används för att bestämma hur stor skillnad det får vara mellan genomer för att de ska tillhöra samma ras (2.0)--
+DELTA_EXCESS 	= 2.0 
 DELTA_WEIGHTS 	= 0.4                          	-- används för att bestämma hur stor skillnad det får vara mellan genomer för att de ska tillhöra samma ras --
-DELTA_THRESHOLD = 3.0                        	-- används för att bestämma hur stor skillnad det får vara mellan genomer för att de ska tillhöra samma ras (1.0)--
+DELTA_THRESHOLD = 1.0                        	-- används för att bestämma hur stor skillnad det får vara mellan genomer för att de ska tillhöra samma ras (1.0)--
                                             	-- deltadisjoints*SkillnadenILänkar + deltaWeights*skillnadenIVikter < Deltathreshold == samma ras --
 
 STALE_SPECIES = 15                           	-- Hur många generationer en ras inte behöver förbättra sitt maxFitness, över detta antal så tas rasen bort -- 
@@ -35,6 +35,6 @@ PETURB_CHANCE = 0.90                            -- sannolikhet för att vikten s
 CROSSOVER_CHANCE = 0.75                         -- sannolikhet för att ett barn skall skapas av två genomer, annars kopieras bara en genom till barnet -- 
 
 STEP_SIZE = 0.1                              	-- används när vi MODIFIERAR gamla vikter i pointMutate -- 
-TIMEOUT_CONSTANT = 40                         	-- hur länge mario får stå still innan vi avbryter nuvarande simulation -- 
+TIMEOUT_CONSTANT = 35                         	-- hur länge mario får stå still innan vi avbryter nuvarande simulation -- 
 
 MAX_NODES = 1000000                          	-- hur många noder som max får finnas i en Genome --

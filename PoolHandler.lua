@@ -7,7 +7,7 @@ lastInnovation = 6         -- vilket innvoationstal som vi är på, om de skapas
 local function newPool() 
     local pool = {}
     pool.species = {}           -- alla species för denna generation --
-    pool.generation = 0         -- vilken generation vi är på för nuvarande --
+    pool.generation = 1         -- vilken generation vi är på för nuvarande --
     pool.currentSpecies = 1     -- nuvarande ras som testas --
     pool.currentGenome = 1      -- nuvarande genom som testas --
     pool.currentFrame = 0       -- vilken frame vi är på i emulationen --

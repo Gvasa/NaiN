@@ -24,7 +24,7 @@ local timeout 	= 0
 
 -- Sätter startvärden är simulationen
 local function startRun(pool)
-	print("start run för Generation: " ..  pool.generation .. ", currentSpecies: " .. pool.currentSpecies .. ", currentGenome: " .. pool.currentGenome)
+	
 	savestate.load(SAVE_STATE)
 	rightMost 			= 0
 	pool.currentFrame 	= 0
@@ -124,7 +124,7 @@ while true do
 	if timeout <= 0 then 	
 
 																							-- if mario has been standing still for to long
-		local fitness = rightMost + pool.currentFrame / 3.0 								-- calculate the fitnesss
+		local fitness = math.floor(rightMost + pool.currentFrame / 4.0) 								-- calculate the fitnesss
 		if rightMost > 3186 then  															-- if mario finish the level give him a fuckingMILLION FITNESS POINTS
 			fitness = fitness + 1000000
 		end
@@ -138,8 +138,8 @@ while true do
 		if fitness > pool.maxFitness then 													-- update the pools maxfitness if needed
 			pool.maxFitness = fitness 												
 		end
-		print("Fitness: " .. fitness)
-		print("----------Leta ny genom!-------------")
+		print("Gen: " ..  pool.generation .. " - Species - " .. pool.currentSpecies .. " - Genome: " .. pool.currentGenome .. " - fitness: " .. currentGenome.fitness .. " - maxF: " .. pool.maxFitness)
+	
 		PoolHandler.findNextGenome(pool) 																-- search for the next genome to simulate, will change the current species and current genome of the pool.
 		--PoolHandler.printClass(pool)
 		
