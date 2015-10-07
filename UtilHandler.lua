@@ -88,7 +88,7 @@ end
 
 local function writeJsonToFile(pool)
     
-    local fileName = "generation-" .. pool.generation .. ".json"
+    local fileName = "webApplication/generation-" .. pool.generation .. ".json"
     print("Write to file: " .. fileName)
     local outPut = json.encode (pool, { indent = true })
     local file = io.open(fileName, "w")

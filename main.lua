@@ -19,8 +19,6 @@ local timeout 	= 0
 ---------------------------------------
 
 
-
-
 ------------ Funktioner ---------------
 
 -- Sätter startvärden är simulationen
@@ -93,8 +91,6 @@ local pool = PoolHandler.newPool()
 -- Generera populationen med arter --
 PoolHandler.generateStartPool(pool.species);
 main.startRun(pool)
-
-
 print("Före while, har initiliazat en start pool")
 --PoolHandler.printClass(pool)
 
@@ -164,6 +160,11 @@ while true do
 		if fitness > pool.maxFitness then 													-- update the pools maxfitness if needed
 			pool.maxFitness = fitness 												
 		end
+
+		if fitness > pool.species[pool.currentSpecies].topFitness then
+			pool.species[pool.currentSpecies].topFitness = fitness
+		end
+
 		print("Gen: " ..  pool.generation .. " - Species - " .. pool.currentSpecies .. " - Genome: " .. pool.currentGenome .. " - fitness: " .. currentGenome.fitness .. " - maxF: " .. pool.maxFitness)
 	
 		PoolHandler.findNextGenome(pool) 																-- search for the next genome to simulate, will change the current species and current genome of the pool.
