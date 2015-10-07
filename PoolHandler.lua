@@ -60,7 +60,6 @@ local function createNewGeneration(pool)
 
     local newChildren = {}
 
-
     GenomeHandler.removeWeakGenomes(pool.species, false)            -- skicka in false för att vi ska behålla hälften av alla genomer i varje ras
 
     PoolHandler.rankGenomesGlobally(pool)

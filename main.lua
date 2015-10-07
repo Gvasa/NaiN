@@ -167,7 +167,6 @@ while true do
 		print("Gen: " ..  pool.generation .. " - Species - " .. pool.currentSpecies .. " - Genome: " .. pool.currentGenome .. " - fitness: " .. currentGenome.fitness .. " - maxF: " .. pool.maxFitness)
 	
 		PoolHandler.findNextGenome(pool) 																-- search for the next genome to simulate, will change the current species and current genome of the pool.
-		--PoolHandler.printClass(pool)
 		
 		main.startRun(pool) 																			-- start a run with the next genome
 		
