@@ -36,6 +36,10 @@ body {
   height:500px;
 }
 
+#title, #controlpanel{
+  text-align: center;
+}
+
 #network {
   height:350px;
 }
@@ -49,11 +53,19 @@ body {
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
   <script src="http://d3js.org/queue.v1.min.js"></script>
+  <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
 </head>
 <body>
   <div class="row">
-    <div class="col-xs-12">
+    <div class="col-xs-10">
       <h1 id="title">Visar nu alla generationer</h1>
+    </div>
+  </div>
+  <div class="row">
+    <div id="controlpanel" class="col-xs-10">
+      <button id="buttonBack" class="btn btn-success"><-</button>
+      <span>Generation</span>
+      <button id="buttonForward" class="btn btn-success">-></button>
     </div>
   </div>
   <div class="row">
@@ -135,12 +147,6 @@ var line1 = d3.svg.line()
     .x(function(g) { return xScale1(g.generation); })
     .y(function(g) { return yScale1(g.maxFitness); });
 
-var maxFintessOverallSvg = d3.select("div#one").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
 //------------------------------------------------------------------------------------//
 
 var xScale2 = d3.scale.linear().range([0, width]);
@@ -163,14 +169,23 @@ for(var i = 1; i <= NUM_OF_GENERATIONS; i++) {
 
       generations.push(data);
       if(generations.length == NUM_OF_GENERATIONS) {
-        afterInput();
+        setGenerationGraph();
       }
   });
 }
 
 //------------------------------------------------------------------------------------//
 
-function afterInput() {
+function setGenerationGraph() {
+
+
+  d3.select("div#one").html("");
+
+  var maxFintessOverallSvg = d3.select("div#one").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   // Scale the range of the data
   xScale1.domain(d3.extent(generations, function(g) { return g.generation; }));
@@ -185,6 +200,11 @@ function afterInput() {
     .data(generations)
     .enter().append("circle")
     .attr("class", "dot")
+    .attr("class", function(d) {
+      if(currentGeneration == d.generation) {
+        return "selectedOne";
+      } 
+    })
     .attr("r", 5.0)
     .attr("cx", function(d) { return xScale1(d.generation); })
     .attr("cy", function(d) { return yScale1(d.maxFitness); })
@@ -192,15 +212,12 @@ function afterInput() {
 
       d3.select(".selectedOne").classed("selectedOne", false);
       d3.select(this).classed("selectedOne", true);
-
+      
       currentGeneration = 1+i;
       currentSpeices = 0;
 
-      setGenerationGraph(generations[currentGeneration]["species"]);
-      setInfotext(getMaxGenome(generations[currentGeneration]["species"][currentSpeices]["genomes"]));
-      paint(getMaxGenome(generations[currentGeneration]["species"][currentSpeices]["genomes"]));
-
-      setTitle(d.generation, 1);
+      changeGeneration();
+      
     });
 
   maxFintessOverallSvg.append("g")
@@ -219,7 +236,10 @@ function afterInput() {
         .text("Max Fitness");
 }
 
-function setGenerationGraph(species) {
+
+//------------------------------------------------------------------------------------//
+
+function setSpeciesGraph(species) {
 
   d3.select("div#two").html("");
 
@@ -272,6 +292,11 @@ function setGenerationGraph(species) {
     .style("text-anchor", "end")
     .text("Max Fitness");
 }
+
+function changeGeneration() {
+  setSpeciesGraph(generations[currentGeneration]["species"]);
+  setTitle(generations[currentGeneration]["species"], 1);
+}  
 
 function getMaxGenome(genomes) {
   var genome = genomes[0];
@@ -326,5 +351,20 @@ function setInfotext(genome) {
   document.getElementById("connection").innerHTML = genome["mutationRates"]["mutateConnectionChance"];
   document.getElementById("node").innerHTML = genome["mutationRates"]["nodeMutationChance"];
 }
+
+$( "#buttonBack" ).click(function() {
+  if(currentGeneration > 1) {
+    currentGeneration--;
+    setGenerationGraph();
+    changeGeneration();
+  }
+});
+$( "#buttonForward" ).click(function() {
+  if(currentGeneration < NUM_OF_GENERATIONS-1) {
+    currentGeneration++;   
+    setGenerationGraph();
+    changeGeneration() 
+  }
+});
 </script>
 </body>
