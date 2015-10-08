@@ -60,6 +60,17 @@ body {
     <div class="col-xs-10">
       <h1 id="title">Visar nu alla generationer</h1>
     </div>
+    <div class="col-xs-2">
+      <div class="input-group">
+        <span class="input-group-addon" id="basic-addon1">Run:</span>
+        <input id="inputRun" type="text" class="form-control" aria-describedby="basic-addon1">
+      </div>
+      <div class="input-group">
+        <span class="input-group-addon" id="basic-addon2">Gen:</span>
+        <input id="inputGen" type="text" class="form-control" placeholder="" aria-describedby="basic-addon2">
+      </div>
+      <button id="loadButton" class="btn btn-success" style="float:right;">Load Data</button>
+    </div>
   </div>
   <div class="row">
     <div id="controlpanel" class="col-xs-10">
@@ -125,18 +136,19 @@ body {
   </div>
 
 <script>
+//---------------------------------------Global variables-----------------------------------------//
+var runs = [];
+var NUM_OF_GENERATIONS = 8, NUM_OF_RUNS = 3
+var currentRun = 0, currentGeneration = 0, currentSpeices = 0;
 
-//------------------------------------------------------------------------------------//
 
-var generations = [];
-var NUM_OF_GENERATIONS = 10, currentGeneration = 0, currentSpeices = 0;
 var margin = {top: 20, right: 20, bottom: 50, left: 50};
 var width = document.getElementById('one').offsetWidth - margin.left - margin.right;
 var height = document.getElementById('one').offsetHeight - margin.top - margin.bottom;
-    // width = 960 - margin.left - margin.right,
-    // height = 300 - margin.top - margin.bottom;
 
-//------------------------------------------------------------------------------------//
+var color = ["black", "red", "magenta", "green", "blue", "coral", "cyan", "DarkOrange", "DeepPink", "indogo", "purple", "saddleBrown", "slateGray", "yellow", "yellowGreen"];
+
+//---------------------------------------- Variabels for graph 1 --------------------------------------------//
 var xScale1 = d3.scale.linear().range([0, width]);
 var yScale1 = d3.scale.linear().range([height, 0]);
 
@@ -147,7 +159,7 @@ var line1 = d3.svg.line()
     .x(function(g) { return xScale1(g.generation); })
     .y(function(g) { return yScale1(g.maxFitness); });
 
-//------------------------------------------------------------------------------------//
+//----------------------------------------- Variabels for graph 2 -------------------------------------------//
 
 var xScale2 = d3.scale.linear().range([0, width]);
 var yScale2 = d3.scale.linear().range([height, 0]);
@@ -159,25 +171,46 @@ var line2 = d3.svg.line()
     .x(function(s,i) { return xScale2(i); })
     .y(function(s) { return yScale2(s.topFitness); });
 
-//------------------------------------------------------------------------------------//
+//-------------------------------------------- LOAD DATA ------------------------------------------//
 
+$( "#loadButton" ).click(function() {
+  NUM_OF_RUNS = document.getElementById('inputRun').value;
+  NUM_OF_GENERATIONS = document.getElementById('inputGen').value;
+  beginToLoadData();
+});
 
-for(var i = 1; i <= NUM_OF_GENERATIONS; i++) {
-  d3.json("Test3/generation-"+i+".json", 
-    function(error, data) {
-      if(error) throw error;
-
-      generations.push(data);
-      if(generations.length == NUM_OF_GENERATIONS) {
-        setGenerationGraph();
-      }
-  });
+function beginToLoadData() {
+  runs = [];
+  for(var i = 1; i <= NUM_OF_RUNS; i++) {
+    addToGenerations(i);
+  }
 }
 
-//------------------------------------------------------------------------------------//
+function addToGenerations(numRun) {
+  var generations = [];
+  for(var i = 1; i <= NUM_OF_GENERATIONS; i++) {
+    d3.json("Test"+numRun+"/generation-"+i+".json", 
+      function(error, data) {
+        if(error) throw error;
+
+        generations.push(data);
+        if(generations.length == NUM_OF_GENERATIONS) {
+          addToRun(generations)
+        }
+    });
+  }
+}
+
+function addToRun(data) {
+  runs.push(data);
+  if(runs.length == NUM_OF_RUNS) {
+    setGenerationGraph()
+  }
+}
+
+//--------------------------------------Frist Graph------------------------------------------//
 
 function setGenerationGraph() {
-
 
   d3.select("div#one").html("");
 
@@ -188,36 +221,40 @@ function setGenerationGraph() {
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   // Scale the range of the data
-  xScale1.domain(d3.extent(generations, function(g) { return g.generation; }));
-  yScale1.domain([0, d3.max(generations, function(g) { return g.maxFitness; })]);
+  xScale1.domain([1, NUM_OF_GENERATIONS]);
+  yScale1.domain([0, 1000]);
 
-  maxFintessOverallSvg.append("path")
-    .datum(generations)
-    .attr("class", "line")
-    .attr("d", line1);
+  runs.forEach(function(data, index) {
 
-  maxFintessOverallSvg.selectAll(".dot")
-    .data(generations)
-    .enter().append("circle")
-    .attr("class", "dot")
-    .attr("class", function(d) {
-      if(currentGeneration == d.generation) {
-        return "selectedOne";
-      } 
-    })
-    .attr("r", 5.0)
-    .attr("cx", function(d) { return xScale1(d.generation); })
-    .attr("cy", function(d) { return yScale1(d.maxFitness); })
-    .on("click", function(d,i){
+    maxFintessOverallSvg.append("path")
+      .datum(data)
+      .attr("class", "line")
+      .attr("d", line1)
+      .style("stroke", function(d,i){ return color[index]; });
 
-      d3.select(".selectedOne").classed("selectedOne", false);
-      d3.select(this).classed("selectedOne", true);
-      
-      currentGeneration = 1+i;
-      currentSpeices = 0;
+    maxFintessOverallSvg.selectAll(".dot")
+      .data(data)
+      .enter().append("circle")
+      .attr("class", "dot")
+      .attr("class", function(d) {
+        if(currentGeneration == d.generation && currentRun == index) {
+          return "selectedOne";
+        } 
+      })
+      .attr("r", 5.0)
+      .attr("cx", function(d) { return xScale1(d.generation); })
+      .attr("cy", function(d) { return yScale1(d.maxFitness); })
+      .on("click", function(d,i){ 
 
-      changeGeneration();
-      
+        d3.select(".selectedOne").classed("selectedOne", false);
+        d3.select(this).classed("selectedOne", true);
+        
+        currentRun = index;
+        currentGeneration = 1+i;
+        currentSpeices = 0;
+
+        changeGeneration();
+      });
     });
 
   maxFintessOverallSvg.append("g")
@@ -237,7 +274,7 @@ function setGenerationGraph() {
 }
 
 
-//------------------------------------------------------------------------------------//
+//--------------------------------Second Graph------------------------------------------------//
 
 function setSpeciesGraph(species) {
 
@@ -293,22 +330,7 @@ function setSpeciesGraph(species) {
     .text("Max Fitness");
 }
 
-function changeGeneration() {
-  setSpeciesGraph(generations[currentGeneration]["species"]);
-  setTitle(generations[currentGeneration]["species"], 1);
-}  
-
-function getMaxGenome(genomes) {
-  var genome = genomes[0];
-
-  for(var index=0; index < genomes.length; index++) {
-
-    if(genome["fitness"] < genomes[index]["fitness"]) {
-      genome = genomes[index];
-    }
-  }
-  return genome;
-}
+//--------------------------------Third section------------------------------------------------//
 
 function paint(genome) {
   var network = genome["network"]["neurons"];
@@ -323,6 +345,8 @@ function paint(genome) {
 
       if(network[index]["value"] == 1) {
         ctxFill.fillStyle="white";
+      } else if(network[index]["value"] == -1) {
+        ctxFill.fillStyle="red";
       } else {
         ctxFill.fillStyle="black";
       }
@@ -330,6 +354,40 @@ function paint(genome) {
       ctxFill.fillRect(x*boxSize+30, y*boxSize+70, boxSize, boxSize);
     }
   }
+}
+
+//--------------------------------Functions------------------------------------------------//
+
+function changeGeneration() {
+  setSpeciesGraph(runs[currentRun][currentGeneration]["species"]);
+  setTitle(runs[currentRun][currentGeneration]["species"], 1);
+}  
+
+$( "#buttonBack" ).click(function() {
+  if(currentGeneration > 1) {
+    currentGeneration--;
+    setGenerationGraph();
+    changeGeneration();
+  }
+});
+$( "#buttonForward" ).click(function() {
+  if(currentGeneration < NUM_OF_GENERATIONS-1) {
+    currentGeneration++;   
+    setGenerationGraph();
+    changeGeneration() 
+  }
+});
+
+function getMaxGenome(genomes) {
+  var genome = genomes[0];
+
+  for(var index=0; index < genomes.length; index++) {
+
+    if(genome["fitness"] < genomes[index]["fitness"]) {
+      genome = genomes[index];
+    }
+  }
+  return genome;
 }
 
 function setTitle() {
@@ -351,20 +409,5 @@ function setInfotext(genome) {
   document.getElementById("connection").innerHTML = genome["mutationRates"]["mutateConnectionChance"];
   document.getElementById("node").innerHTML = genome["mutationRates"]["nodeMutationChance"];
 }
-
-$( "#buttonBack" ).click(function() {
-  if(currentGeneration > 1) {
-    currentGeneration--;
-    setGenerationGraph();
-    changeGeneration();
-  }
-});
-$( "#buttonForward" ).click(function() {
-  if(currentGeneration < NUM_OF_GENERATIONS-1) {
-    currentGeneration++;   
-    setGenerationGraph();
-    changeGeneration() 
-  }
-});
 </script>
 </body>
