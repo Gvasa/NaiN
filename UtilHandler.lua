@@ -87,8 +87,26 @@ local function getSprites()
 end
 
 local function writeJsonToFile(pool)
+
+    local newPool = PoolHandler.copyPool(pool)
+
+    for i=1,#newPool.species do
+        local currentSpecies = newPool.species[i]
+        for j=1,#currentSpecies do
+            currentSpecies.genomes[j].network.neurons = {}
+            currentSpecies.genomes[j].links = #currentSpecies.genomes[j].links
+        end
+        
+    end
     
-    local fileName = "webApplication/generation-" .. pool.generation .. ".json"
+    local fileName = "webApplication/generation-" .. newPool.generation .. ".json"
+    print("Write to file: " .. fileName)
+    local outPut = json.encode (newPool, { indent = true })
+    local file = io.open(fileName, "w")
+    file:write(outPut)
+    file:close()
+
+    local fileName = "webApplication/lastGeneration.json"
     print("Write to file: " .. fileName)
     local outPut = json.encode (pool, { indent = true })
     local file = io.open(fileName, "w")

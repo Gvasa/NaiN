@@ -69,6 +69,7 @@ body {
         <span class="input-group-addon" id="basic-addon2">Gen:</span>
         <input id="inputGen" type="text" class="form-control" placeholder="" aria-describedby="basic-addon2">
       </div>
+      <span id="progress"></span>
       <button id="loadButton" class="btn btn-success" style="float:right;">Load Data</button>
     </div>
   </div>
@@ -139,7 +140,7 @@ body {
 //---------------------------------------Global variables-----------------------------------------//
 var runs = [];
 var NUM_OF_GENERATIONS = 8, NUM_OF_RUNS = 3
-var currentRun = 0, currentGeneration = 0, currentSpeices = 0;
+var currentRun = 0, currentGeneration = 0, currentSpeices = 0, totalGenerationProgress = 0;
 
 
 var margin = {top: 20, right: 20, bottom: 50, left: 50};
@@ -176,6 +177,7 @@ var line2 = d3.svg.line()
 $( "#loadButton" ).click(function() {
   NUM_OF_RUNS = document.getElementById('inputRun').value;
   NUM_OF_GENERATIONS = document.getElementById('inputGen').value;
+  totalGenerationProgress = 0;
   beginToLoadData();
 });
 
@@ -188,12 +190,21 @@ function beginToLoadData() {
 
 function addToGenerations(numRun) {
   var generations = [];
+  var count = 0;
   for(var i = 1; i <= NUM_OF_GENERATIONS; i++) {
     d3.json("Test"+numRun+"/generation-"+i+".json", 
       function(error, data) {
         if(error) throw error;
 
         generations.push(data);
+
+        // Set a progress
+        if(generations.length > count) {
+          totalGenerationProgress++;
+          count++;
+          document.getElementById("progress").innerHTML = totalGenerationProgress/(NUM_OF_GENERATIONS*NUM_OF_RUNS)*100 + "%";
+        }
+
         if(generations.length == NUM_OF_GENERATIONS) {
           addToRun(generations)
         }
@@ -222,15 +233,15 @@ function setGenerationGraph() {
 
   // Scale the range of the data
   xScale1.domain([1, NUM_OF_GENERATIONS]);
-  yScale1.domain([0, 1000]);
+  yScale1.domain([0, 2500]);
 
   runs.forEach(function(data, index) {
 
-    maxFintessOverallSvg.append("path")
-      .datum(data)
-      .attr("class", "line")
-      .attr("d", line1)
-      .style("stroke", function(d,i){ return color[index]; });
+    // maxFintessOverallSvg.append("path")
+    //   .datum(data)
+    //   .attr("class", "line")
+    //   .attr("d", line1)
+    //   .style("stroke", function(d,i){ return color[index]; });
 
     maxFintessOverallSvg.selectAll(".dot")
       .data(data)
@@ -400,7 +411,7 @@ function setTitle() {
 
 function setInfotext(genome) {
   document.getElementById("fitness").innerHTML = genome["fitness"];
-  document.getElementById("NumLink").innerHTML = genome["links"].length;
+  document.getElementById("NumLink").innerHTML = genome["links"];
   document.getElementById("NumNeuron").innerHTML = genome["maxNeuron"];
   document.getElementById("bias").innerHTML = genome["mutationRates"]["biasMutationChance"];
   document.getElementById("disable").innerHTML = genome["mutationRates"]["disableMutationChance"];

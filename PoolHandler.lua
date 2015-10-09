@@ -16,6 +16,25 @@ local function newPool()
     return pool
 end
 
+local function copyPool(oldPool)
+
+    local newPool = {}
+
+    newPool.generation             = oldPool.generation
+    newPool.currentSpecies         = oldPool.currentSpecies
+    newPool.currentGenome          = oldPool.currentGenome
+    newPool.currentFrame           = oldPool.currentFrame
+    newPool.maxFitness             = oldPool.maxFitness
+    newPool.maxGenerationFitness   = maxGenerationFitness
+
+    newPool.species = {} 
+    for i=1, #oldPool.species do 
+        table.insert(newPool.species, SpeciesHandler.copySpecies(oldPool.species[i]))
+    end
+
+    return newPool
+end
+
     -- Lägger massa startgenomer till raser som sedan läggs till i poolen --
 local function generateStartPool(species)
     
@@ -130,6 +149,7 @@ local function printClass(pool)
 end
 
 PoolHandler.newPool = newPool
+PoolHandler.copyPool = copyPool
 PoolHandler.generateStartPool = generateStartPool
 PoolHandler.generateInnovationNumber = generateInnovationNumber
 PoolHandler.findNextGenome = findNextGenome
