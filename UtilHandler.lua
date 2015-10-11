@@ -92,7 +92,7 @@ local function writeJsonToFile(pool)
 
     for i=1,#newPool.species do
         local currentSpecies = newPool.species[i]
-        for j=1,#currentSpecies do
+        for j=1,#currentSpecies.genomes do
             currentSpecies.genomes[j].network.neurons = {}
             currentSpecies.genomes[j].links = #currentSpecies.genomes[j].links
         end
