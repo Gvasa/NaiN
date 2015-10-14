@@ -116,7 +116,7 @@ end
 
 local function readFromFile(pool)
 
-    local fileName ="webApplication/lastGeneration.json"
+    local fileName ="saved/lastGeneration.json"
     print("read from file " .. fileName)
 
     local newCurrentSpecies, newMaxGenerationFitness, newGeneration, newMaxFitness

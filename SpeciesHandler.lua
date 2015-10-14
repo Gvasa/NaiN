@@ -37,7 +37,7 @@ local function copyFullSpecies(oldSpecies)
     for i=1, #oldSpecies.genomes do 
         table.insert(newSpecies.genomes, GenomeHandler.copyFullGenome(oldSpecies.genomes[i]))   
     end
-   
+
     return newSpecies 
 end
 
@@ -129,7 +129,7 @@ local function createNewChildren(pool, newChildren)
         end
     end
 
-   print("newChildren i slutet på createnewchildren " .. #newChildren)
+   --print("newChildren i slutet på createnewchildren " .. #newChildren)
     
     --return children
 end
