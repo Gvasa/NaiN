@@ -27,6 +27,20 @@ local function copySpecies(oldSpecies)
     return newSpecies 
 end
 
+local function copyFullSpecies(oldSpecies)
+    local newSpecies = {}
+    newSpecies.topFitness  = oldSpecies.topFitness
+    newSpecies.staleness   = oldSpecies.staleness
+    newSpecies.averageRank = oldSpecies.averageRank
+    newSpecies.genomes     = {}
+
+    for i=1, #oldSpecies.genomes do 
+        table.insert(newSpecies.genomes, GenomeHandler.copyFullGenome(oldSpecies.genomes[i]))   
+    end
+   
+    return newSpecies 
+end
+
 -- Ska lägga till en genom till en ras
 local function addGenomeToSpecies(species, genomeToAdd)
     local foundSpecies = false                          -- En boolean som kollar om vi lagt till den till en ras eller ej
@@ -144,6 +158,7 @@ end
 -- binda functioner
 SpeciesHandler.newSpecies = newSpecies
 SpeciesHandler.copySpecies = copySpecies
+SpeciesHandler.copyFullSpecies = copyFullSpecies
 SpeciesHandler.addGenomeToSpecies = addGenomeToSpecies
 SpeciesHandler.removeStaleSpecies = removeStaleSpecies
 SpeciesHandler.removeWeakSpecies = removeWeakSpecies

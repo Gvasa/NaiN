@@ -37,4 +37,4 @@ CROSSOVER_CHANCE = 0.75                         -- sannolikhet för att ett barn
 STEP_SIZE = 0.1                              	-- används när vi MODIFIERAR gamla vikter i pointMutate -- 
 TIMEOUT_CONSTANT = 70                        	-- hur länge mario får stå still innan vi avbryter nuvarande simulation -- 
 
-MAX_NODES = 1000000                          	-- hur många noder som max får finnas i en Genome --
+MAX_NODES = 2000                          	-- hur många noder som max får finnas i en Genome --

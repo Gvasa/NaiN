@@ -85,14 +85,12 @@ main.findNextGenome = findNextGenome
 -- Skapa en ny genpool
 local pool = PoolHandler.newPool()
 
+-- IFALL DU VILL LÄSA IN EN GAMMAL! webapplication/lastgeneration.json--
+pool = UtilHandler.readFromFile(pool)
 
---inputs = UtilHandler.getWorldInputs()
-
--- Generera populationen med arter --
-PoolHandler.generateStartPool(pool.species);
-main.startRun(pool)
-print("Före while, har initiliazat en start pool")
---PoolHandler.printClass(pool)
+-- IFALL DU VILL STARTA EN NY! -- 
+-- PoolHandler.generateStartPool(pool.species);
+-- main.startRun(pool)
 
 while true do
 	local currentGenome = pool.species[pool.currentSpecies].genomes[pool.currentGenome]	
@@ -165,7 +163,7 @@ while true do
 			pool.species[pool.currentSpecies].topFitness = fitness
 		end
 
-		print("Gen: " ..  pool.generation .. " - Species - " .. pool.currentSpecies .. " - Genome: " .. pool.currentGenome .. " - fitness: " .. currentGenome.fitness .. " - maxF: " .. pool.maxFitness)
+		--print("Gen: " ..  pool.generation .. " - Species - " .. pool.currentSpecies .. " - Genome: " .. pool.currentGenome .. " - fitness: " .. currentGenome.fitness .. " - maxF: " .. pool.maxFitness)
 	
 		PoolHandler.findNextGenome(pool) 																-- search for the next genome to simulate, will change the current species and current genome of the pool.
 		
