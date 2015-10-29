@@ -310,8 +310,6 @@ local function createNewChild(genomes)
         child = GenomeHandler.initializeLoveMaking(mom, dad)
     else
         local dad = genomes[random1]
-       -- print("randomtal: " .. random1)
-        --GenomeHandler.printClass(mom)
         child = GenomeHandler.copyGenome(dad)
     end
 
