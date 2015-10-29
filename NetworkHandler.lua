@@ -9,6 +9,20 @@ local function newNetwork()
     return network
 end
 
+local function copyNetwork(oldNetwork)
+    local newNetwork = NetworkHandler.newNetwork()
+--[[ 
+    for i=1, #oldNetwork.neurons do
+        table.insert(newNetwork.neurons, NeuronHandler.copyNeuron(oldNetwork.neuron[i]))
+    end
+]]--
+    
+    newNetwork.neurons = NeuronHandler.copyNeuron(oldNetwork.neurons)
+
+    return newNetwork
+
+end
+
 local function evaluateNetworkForOutput(network)
     local inputs = UtilHandler.getWorldInputs()                                 -- get all the world inputs
  
@@ -65,6 +79,7 @@ local function printClass(network)
 end
 
 NetworkHandler.newNetwork = newNetwork
+NetworkHandler.copyNetwork = copyNetwork
 NetworkHandler.evaluateNetworkForOutput = evaluateNetworkForOutput
 NetworkHandler.sigmoidFunction = sigmoidFunction
 NetworkHandler.printClass = printClass

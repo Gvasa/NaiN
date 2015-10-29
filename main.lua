@@ -85,25 +85,23 @@ main.findNextGenome = findNextGenome
 -- Skapa en ny genpool
 local pool = PoolHandler.newPool()
 
+-- IFALL DU VILL LÄSA IN EN GAMMAL! saved/lastgeneration.json--
+pool = UtilHandler.readFromFile(pool)
 
---inputs = UtilHandler.getWorldInputs()
-
--- Generera populationen med arter --
-PoolHandler.generateStartPool(pool.species);
-main.startRun(pool)
-print("Före while, har initiliazat en start pool")
---PoolHandler.printClass(pool)
+-- IFALL DU VILL STARTA EN NY! -- 
+--PoolHandler.generateStartPool(pool.species);
+--main.startRun(pool)
 
 while true do
 	local currentGenome = pool.species[pool.currentSpecies].genomes[pool.currentGenome]	
 
 	local bgColor = 0xEEFFFAFA
 	local blackColor = 0xDD000000
-	gui.drawBox(5, 201, 248, 230, blackColor, bgColor)
-	gui.drawText(5, 200, "Gen:" .. pool.generation .. " species:" .. pool.currentSpecies .. " brain:" .. pool.currentGenome, 0xFF000000, 10)
-	gui.drawText(5, 211, "cFit:" .. math.floor(rightMost - pool.currentFrame / 4.0) .. " mFit:" .. pool.maxFitness, 0xFF000000, 10)
+	gui.drawBox(2, 201, 253, 230, blackColor, bgColor)
+	gui.drawText(2, 200, "Gen:" .. pool.generation .. " species:" .. pool.currentSpecies .. " brain:" .. pool.currentGenome, 0xFF000000, 10)
+	gui.drawText(2, 211, "cFit:" .. math.floor(rightMost - pool.currentFrame / 4.0) .. " mFit:" .. pool.maxFitness, 0xFF000000, 10)
 
-	gui.drawLine(160, 201, 160, 248, blackColor)
+	gui.drawLine(170, 201, 170, 248, blackColor)
 
 	if pool.currentFrame % 5 then
 		main.setControllerInput(currentGenome) 									-- calculate new output values every 5th frame			
@@ -115,9 +113,9 @@ while true do
 	local yOffset = 0
 	for i = 1, #BUTTON_NAMES do
 		if outputs["P1 " .. BUTTON_NAMES[i]] then 
-			gui.drawText(165+xOffset*26, 200 + yOffset, BUTTON_NAMES[i], 0xFF00CC00, 9)
+			gui.drawText(170+xOffset*26, 200 + yOffset, BUTTON_NAMES[i], 0xFF00CC00, 9)
 		else 
-			gui.drawText(165+xOffset*26, 200 + yOffset, BUTTON_NAMES[i], 0xFF000000, 9)
+			gui.drawText(170+xOffset*26, 200 + yOffset, BUTTON_NAMES[i], 0xFF000000, 9)
 		end
 
 		xOffset = xOffset + 1
@@ -165,7 +163,7 @@ while true do
 			pool.species[pool.currentSpecies].topFitness = fitness
 		end
 
-		print("Gen: " ..  pool.generation .. " - Species - " .. pool.currentSpecies .. " - Genome: " .. pool.currentGenome .. " - fitness: " .. currentGenome.fitness .. " - maxF: " .. pool.maxFitness)
+		--print("Gen: " ..  pool.generation .. " - Species - " .. pool.currentSpecies .. " - Genome: " .. pool.currentGenome .. " - fitness: " .. currentGenome.fitness .. " - maxF: " .. pool.maxFitness)
 	
 		PoolHandler.findNextGenome(pool) 																-- search for the next genome to simulate, will change the current species and current genome of the pool.
 		

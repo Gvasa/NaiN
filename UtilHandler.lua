@@ -114,10 +114,36 @@ local function writeJsonToFile(pool)
     file:close()
 end
 
+local function readFromFile(pool)
+
+    local fileName ="saved/lastGeneration.json"
+    print("read from file " .. fileName)
+
+    local newCurrentSpecies, newMaxGenerationFitness, newGeneration, newMaxFitness
+    local newSpecies = SpeciesHandler.newSpecies()
+    local network = NetworkHandler.newNetwork()
+
+    local file = assert(io.open(fileName, 'r'))
+    local fileContent = file:read "*a"
+
+    file:close()
+
+    local decodedFileContent, position, err = json.decode(fileContent, 1, nil)
+    if err then
+        print ("Error: " .. err)
+    else
+         pool = PoolHandler.copyFullPool(decodedFileContent)
+    end
+    
+    return pool;
+end
+
+
 UtilHandler.getWorldInputs = getWorldInputs
 UtilHandler.getPositions = getPositions
 UtilHandler.getTile = getTile
 UtilHandler.getSprites = getSprites
 UtilHandler.writeJsonToFile = writeJsonToFile
+UtilHandler.readFromFile = readFromFile
 
 return UtilHandler

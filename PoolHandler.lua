@@ -35,6 +35,27 @@ local function copyPool(oldPool)
     return newPool
 end
 
+local function copyFullPool(oldPool)
+
+    local newPool = {}
+
+    newPool.generation             = oldPool.generation
+    newPool.currentSpecies         = oldPool.currentSpecies
+    newPool.currentGenome          = oldPool.currentGenome
+    newPool.currentFrame           = oldPool.currentFrame
+    newPool.maxFitness             = oldPool.maxFitness
+    newPool.maxGenerationFitness   = maxGenerationFitness
+
+    newPool.species = {} 
+    for i=1, #oldPool.species do 
+        table.insert(newPool.species, SpeciesHandler.copyFullSpecies(oldPool.species[i]))
+    end
+
+    return newPool
+end
+
+
+
     -- Lägger massa startgenomer till raser som sedan läggs till i poolen --
 local function generateStartPool(species)
     
@@ -91,13 +112,13 @@ local function createNewGeneration(pool)
 
     SpeciesHandler.createNewChildren(pool, newChildren)
 
-    print("newchildren efter createNewChildren: " .. #newChildren)
+   -- print("newchildren efter createNewChildren: " .. #newChildren)
 
     GenomeHandler.removeWeakGenomes(pool.species, true)             -- ta bort alla genomer förutom bästa genomen i rasen.
 
     GenomeHandler.fillUpNewChildren(pool.species, newChildren)      -- fyller upp new children med barn så att vi maxxar populationen i nästa generation
 
-    print("newchildren efter fillUpNewChildren: " .. #newChildren)
+    --print("newchildren efter fillUpNewChildren: " .. #newChildren)
 
     for i = 1, #newChildren do
         SpeciesHandler.addGenomeToSpecies(pool.species, newChildren[i])
@@ -150,6 +171,7 @@ end
 
 PoolHandler.newPool = newPool
 PoolHandler.copyPool = copyPool
+PoolHandler.copyFullPool = copyFullPool
 PoolHandler.generateStartPool = generateStartPool
 PoolHandler.generateInnovationNumber = generateInnovationNumber
 PoolHandler.findNextGenome = findNextGenome

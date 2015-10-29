@@ -33,22 +33,48 @@ local function basicGenome()
     return genome
 end
 
-local function copyGenome(genome1)
+local function copyGenome(oldGenome)
     local genome = GenomeHandler.newGenome()
 
-    for i = 1, #genome1.links do
-        table.insert(genome.links, LinkHandler.copyLink(genome1.links[i]))
+    for i = 1, #oldGenome.links do
+        table.insert(genome.links, LinkHandler.copyLink(oldGenome.links[i]))
     end
 
-    genome.mutationRates["mutateConnectionChance"]  = genome1.mutationRates["mutateConnectionChance"]  
-    genome.mutationRates["linkMutationChance"]      = genome1.mutationRates["linkMutationChance"]      
-    genome.mutationRates["biasMutationChance"]      = genome1.mutationRates["biasMutationChance"]      
-    genome.mutationRates["nodeMutationChance"]      = genome1.mutationRates["nodeMutationChance"]      
-    genome.mutationRates["disableMutationChance"]   = genome1.mutationRates["disableMutationChance"]   
-    genome.mutationRates["enableMutationChance"]    = genome1.mutationRates["enableMutationChance"]    
+    genome.mutationRates["mutateConnectionChance"]  = oldGenome.mutationRates["mutateConnectionChance"]  
+    genome.mutationRates["linkMutationChance"]      = oldGenome.mutationRates["linkMutationChance"]      
+    genome.mutationRates["biasMutationChance"]      = oldGenome.mutationRates["biasMutationChance"]      
+    genome.mutationRates["nodeMutationChance"]      = oldGenome.mutationRates["nodeMutationChance"]      
+    genome.mutationRates["disableMutationChance"]   = oldGenome.mutationRates["disableMutationChance"]   
+    genome.mutationRates["enableMutationChance"]    = oldGenome.mutationRates["enableMutationChance"]    
 
     return genome
 end
+
+local function copyFullGenome(oldGenome)
+       -- GenomeHandler.printClass(oldGenome)
+    local genome = GenomeHandler.newGenome()
+
+    for i = 1, #oldGenome.links do
+        table.insert(genome.links, LinkHandler.copyLink(oldGenome.links[i]))
+    end
+--[[
+    for i = 1, #oldGenome.network do
+        table.insert(genome.network, NetworkHandler.copyNetwork(oldGenome.network))
+    end
+]]--
+    genome.network = NetworkHandler.copyNetwork(oldGenome.network)
+    --print("size of newGenome network: " .. #genome.network)
+   -- NetworkHandler.printClass(oldGenome.network)
+
+    genome.mutationRates["mutateConnectionChance"]  = oldGenome.mutationRates["mutateConnectionChance"]  
+    genome.mutationRates["linkMutationChance"]      = oldGenome.mutationRates["linkMutationChance"]      
+    genome.mutationRates["biasMutationChance"]      = oldGenome.mutationRates["biasMutationChance"]      
+    genome.mutationRates["nodeMutationChance"]      = oldGenome.mutationRates["nodeMutationChance"]      
+    genome.mutationRates["disableMutationChance"]   = oldGenome.mutationRates["disableMutationChance"]   
+    genome.mutationRates["enableMutationChance"]    = oldGenome.mutationRates["enableMutationChance"]    
+
+    return genome
+end 
 
 local function mutateGenome(genome)
     -- Ändrar alla mutateRates med +/- 5%
@@ -264,7 +290,6 @@ local function generateNetwork(genome)
             end
         end
     end
-
     genome.network = newNetwork
 end
 
@@ -355,20 +380,10 @@ local function initializeLoveMaking(mom, dad)
 end
 
 local function fillUpNewChildren(species, newChildren)
-
- --   print("i fillUpNewChildren")
- --   print("species : " .. #species)
-
- --   print("newchildren: " .. #newChildren)
-
     while #species + #newChildren < POPULATION do
-       -- local genome = species[math.random(1, #species)].genome[1]
-        --GenomeHandler.printClass(genome)
         table.insert(newChildren, GenomeHandler.createNewChild(species[math.random(1, #species)].genomes))
         
     end
-    print("efter createnewchild fillup: " .. #newChildren)
-   -- return newChildren
 end
 
 local function printClass(genome) 
@@ -389,6 +404,7 @@ end
 GenomeHandler.newGenome = newGenome
 GenomeHandler.basicGenome = basicGenome
 GenomeHandler.copyGenome = copyGenome
+GenomeHandler.copyFullGenome = copyFullGenome
 
 GenomeHandler.mutateGenome = mutateGenome
 GenomeHandler.linkWeightMutate = linkWeightMutate
