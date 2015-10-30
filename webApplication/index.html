@@ -6,9 +6,9 @@ body {
   font: 10px sans-serif;
 }
 
-.border {
+/*.border {
   border:solid;
-}
+}*/
 
 .axis path,
 .axis line {
@@ -29,19 +29,19 @@ body {
     fill: red;
 }
 .graphs {
-  height:250px;
+  height:300px;
 }
 
 #info {
-  height:500px;
+  height:300px;
 }
 
 #title, #controlpanel{
   text-align: center;
 }
 
-#network {
-  height:350px;
+#two {
+  height:300px;
 }
 
 .dot {
@@ -58,7 +58,7 @@ body {
 <body>
   <div class="row">
     <div class="col-xs-10">
-      <h1 id="title">Visar nu alla generationer</h1>
+      <h1 id="title"></h1>
     </div>
     <div class="col-xs-2">
       <div class="input-group">
@@ -83,25 +83,20 @@ body {
   <div class="row">
     <div id="graph" class="col-xs-10">
       <div id="one" class="graphs border"></div>
-      <div id="two" class="graphs border"></div>
     </div>
     <div id="info" class="col-xs-2 border">
       <table class="table col-xs-12">
         <tbody>
-          <tr><td colspan="2">Allmänt</td></tr>
+          <tr><td colspan="2" style="text-align:center; font-weight: bold;">General Information</td></tr>
           <tr>
             <td>Fitness</td>
             <td id="fitness">-</td>
           </tr>
           <tr>
-            <td>#Länkar</td>
+            <td>Number of links</td>
             <td id="NumLink">-</td>
           </tr>
-          <tr>
-            <td>MaxNeuron</td>
-            <td id="NumNeuron">-</td>
-          </tr>
-          <tr><td colspan="2">Mutation</td></tr>
+          <tr><td colspan="2" style="text-align:center; font-weight: bold;">Mutation rates</td></tr>
           <tr>
             <td>Bias</td>
             <td id="bias">-</td>
@@ -132,7 +127,8 @@ body {
   </div>
   <div class="row">
     <div id="network" class="col-xs-12 border">
-      <canvas id="myNetwork" width="1000" height="300" style="border:1px solid #d3d3d3;"></canvas>
+      <div id="two" class="graphs border"></div>
+      <!--<canvas id="myNetwork" width="1000" height="300" style="border:1px solid #d3d3d3;"></canvas>-->
     <div>
   </div>
 
@@ -179,6 +175,7 @@ $( "#loadButton" ).click(function() {
   NUM_OF_GENERATIONS = document.getElementById('inputGen').value;
   totalGenerationProgress = 0;
   beginToLoadData();
+  setTitle();
 });
 
 function beginToLoadData() {
@@ -191,12 +188,16 @@ function beginToLoadData() {
 function addToGenerations(numRun) {
   var generations = [];
   var count = 0;
+  var firstGeneration;
   for(var i = 1; i <= NUM_OF_GENERATIONS; i++) {
     d3.json("Test"+numRun+"/generation-"+i+".json", 
       function(error, data) {
-        if(error) throw error;
-
-        generations.push(data);
+        if(error) {
+          generations.push(firstGeneration);
+        } else {
+          firstGeneration = data;
+          generations.push(data);
+        }
 
         // Set a progress
         if(generations.length > count) {
@@ -215,7 +216,16 @@ function addToGenerations(numRun) {
 function addToRun(data) {
   runs.push(data);
   if(runs.length == NUM_OF_RUNS) {
-    setGenerationGraph()
+    sortAllGenerations();
+    setGenerationGraph();
+  }
+}
+
+function sortAllGenerations() {
+  for(var i = 0; i < NUM_OF_RUNS; i++) {
+    runs[i].sort(function(a,b) {
+      return a.generation - b.generation;
+    });
   }
 }
 
@@ -233,7 +243,7 @@ function setGenerationGraph() {
 
   // Scale the range of the data
   xScale1.domain([1, NUM_OF_GENERATIONS]);
-  yScale1.domain([0, 2500]);
+  yScale1.domain([0, 2800]);
 
   runs.forEach(function(data, index) {
 
@@ -252,8 +262,16 @@ function setGenerationGraph() {
           return "selectedOne";
         } 
       })
-      .attr("r", 2.0)
-      .attr("cx", function(d) { return xScale1(d.generation); })
+      .style("fill", function(d,i){ 
+        if(currentGeneration == d.generation && currentRun == index) {
+          return "transsparent";
+        } else {
+          return color[index];
+        }
+      })
+      .attr("r", 3.0)
+      .attr("cx", function(d) { 
+        return xScale1(d.generation); })
       .attr("cy", function(d) { return yScale1(d.maxFitness); })
       .on("click", function(d,i){ 
 
@@ -272,8 +290,14 @@ function setGenerationGraph() {
     .attr("class", "x axis")
     .attr("transform", "translate(0," + height + ")")
     .call(xAxis1)
+    .append("text")
+    .attr("y", -17)
+    .attr("x", 1300)
+    .attr("dy", "1em")
+    .style("text-anchor", "end")
+        .text("Generation");
 
-    maxFintessOverallSvg.append("g")
+  maxFintessOverallSvg.append("g")
     .attr("class", "y axis")
     .call(yAxis1)
     .append("text")
@@ -320,7 +344,7 @@ function setSpeciesGraph(species) {
 
       var genome = getMaxGenome(d["genomes"]);
       currentSpeices = i+1;
-      setInfotext(genome);
+      setInfotext(d);
       //paint(genome);
       setTitle();
     });
@@ -329,6 +353,12 @@ function setSpeciesGraph(species) {
     .attr("class", "x axis")
     .attr("transform", "translate(0," + height + ")")
     .call(xAxis2)
+    .append("text")
+      .attr("y", -17)
+      .attr("x", 1300)
+      .attr("dy", "1em")
+      .style("text-anchor", "end")
+          .text("Species");
 
   maxFintessGenerationSvg.append("g")
     .attr("class", "y axis")
@@ -371,7 +401,8 @@ function paint(genome) {
 
 function changeGeneration() {
   setSpeciesGraph(runs[currentRun][currentGeneration]["species"]);
-  setTitle(runs[currentRun][currentGeneration]["species"], 1);
+  currentSpeices = 0;
+  setTitle();
 }  
 
 $( "#buttonBack" ).click(function() {
@@ -402,23 +433,26 @@ function getMaxGenome(genomes) {
 }
 
 function setTitle() {
-  if(currentSpeices != 0){
-    document.getElementById("title").innerHTML = "Visar nu generation: " +currentGeneration+ " ras: " + currentSpeices;
+  if(currentGeneration == 0){
+    document.getElementById("title").innerHTML = "Shows all generations";
+  } else if(currentSpeices != 0) {
+    document.getElementById("title").innerHTML = "Shows generation " +currentGeneration+ " and specie " + currentSpeices +" best brain";
   } else {
-    document.getElementById("title").innerHTML = "Visar nu generation: " +currentGeneration+ " och alla raser"
+    document.getElementById("title").innerHTML = "Shows generation " +currentGeneration+ " and all species best brains";
   } 
 }
 
-function setInfotext(genome) {
-  document.getElementById("fitness").innerHTML = genome["fitness"];
-  document.getElementById("NumLink").innerHTML = genome["links"];
-  document.getElementById("NumNeuron").innerHTML = genome["maxNeuron"];
-  document.getElementById("bias").innerHTML = genome["mutationRates"]["biasMutationChance"];
-  document.getElementById("disable").innerHTML = genome["mutationRates"]["disableMutationChance"];
-  document.getElementById("enable").innerHTML = genome["mutationRates"]["enableMutationChance"];
-  document.getElementById("link").innerHTML = genome["mutationRates"]["linkMutationChance"];
-  document.getElementById("connection").innerHTML = genome["mutationRates"]["mutateConnectionChance"];
-  document.getElementById("node").innerHTML = genome["mutationRates"]["nodeMutationChance"];
+function setInfotext(species) {
+
+  var gen = getMaxGenome(species["genomes"])
+  document.getElementById("fitness").innerHTML  = species["topFitness"];
+  document.getElementById("NumLink").innerHTML  = gen["links"];
+  document.getElementById("bias").innerHTML     = gen["mutationRates"]["biasMutationChance"];
+  document.getElementById("disable").innerHTML  = gen["mutationRates"]["disableMutationChance"];
+  document.getElementById("enable").innerHTML   = gen["mutationRates"]["enableMutationChance"];
+  document.getElementById("link").innerHTML     = gen["mutationRates"]["linkMutationChance"];
+  document.getElementById("connection").innerHTML = gen["mutationRates"]["mutateConnectionChance"];
+  document.getElementById("node").innerHTML       = gen["mutationRates"]["nodeMutationChance"];
 }
 </script>
 </body>
